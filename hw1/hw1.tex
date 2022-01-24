@@ -1,0 +1,36 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\setlength{\parindent}{0pt} 
+\usepackage{amssymb}
+\usepackage{amsmath}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\ra}{\longrightarrow}
+
+\title{Homework 1}
+\date{}
+\author{Julian Lehrer}
+\begin{document}
+\maketitle
+\textbf{Question 1}
+Suppose $A$ is both unitary and upper-triangular, that is,
+$A^*A=AA^*=UU^{-1}=I$, Therefore, $a_{ij} = 0$ for $i > j$, that is, $A$ is upper triangular. Then we have that $A^*$, the conjugate transpose, is a lower triangular matrix and that $a^*_{ij} = 0$ for $j < i$. Then for the $i$th row, $A^*A_{i, } = \sum_{j=1}^m A_{i, j}A^*_{i, j}=A_{i, i}A^{*}_{i, i }+ 0+...+0 = AA^*{1, }$. So, $A_{i,j}=0$ for $j \neq i$, so $A$ is diagonal. 
+
+\textbf{Question 2.} 
+\begin{itemize}
+    \item Let $x$ be such that $Ax =\lambda x$. Then 
+    \begin{align*}
+        A^{-1}Ax &= A^{-1}\left(\lambda x\right) \\ 
+        \implies x = A^{-1}\left(\lambda x\right)\\
+        \implies x=A^{-1}\lambda x \\
+        \implies A^{-1}x = 1/\lambda x
+    \end{align*}
+    Therefore, $/\lambda$ is an eigenvalue of $A^{-1}$. 
+    \item Suppose $AB = \lambda x$. Then $BAB x= B\lambda x$. Since linear maps are associative, we have that $(BA)Bx = \lambda(Bx)$, that is, the eigenvalue of $BA$ is the same as $AB$ with a different eigenvector. Therefore, the eigenvalues of $AB$ and $BA$ are the same 
+    \item x
+\end{itemize}
+
+\end{document}
