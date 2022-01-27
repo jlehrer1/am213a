@@ -38,12 +38,22 @@ $A^*A=AA^*=UU^{-1}=I$, Therefore, $a_{ij} = 0$ for $i > j$, that is, $A$ is uppe
 \textbf{Question 3.} 
 \begin{itemize}
     \item[a.] We have that $A = A^*$, so $A$ is Hermitian. Then $Ax = \lambda x$. Taking the conjugate transpose of this relation, we have that $x^*A^* = \lambda^*x^*$. Then, $x^*A^*x = \lambda^*x^* x \iff x^*\lambda x = \lambda^*x^*x \iff \lambda x^*x = \lambda^* x^*x \implies \lambda = \lambda^* \implies \lambda \in \R$. 
-    \item[b.] 
+    \item[b.] Let $Au = \lambda u$ and $Av = \tau v$ where $\lambda \neq \tau$. Then consider 
+    \begin{equation*}
+        (Au)^* = (\lambda u)^* \implies u^*A^* = \lambda u^* \implies u^*A = \lambda u^*
+    \end{equation*}
+    Since $A$ is Hermitian. Then multiplying on the right by $v$, we have that 
+    \begin{align*}
+        u^*Av &= \lambda u^*v \\
+        \tau u^*v &= \lambda u^* v\\
+        \tau (u, v) &= \lambda (u, v)
+    \end{align*} 
+    Since $\lambda \neq \tau$, we must have that $(u,v)=0$, that is, the eigenvectors are orthogonal. 
 \end{itemize}
 
 \textbf{Question 4.} Proof ($\implies$). Suppose that $A$ is positive-definite and Hermitian. Let $v$ be a a nonzero vector such that $Av = \lambda v$ where $\lambda \in \R$. Then $(Av, v) = (\lambda v)^* v = \lambda v^*v = \lambda \sqrt{(v,v)} > 0$ by assumption. Since $v$ is nonzero, we have that the inner product $(x,x) > 0$ and hence $\lambda > 0$. \\
 
-Proof ($\impliedby$). Suppose $\lambda > 0$, $\lambda \in \Lambda(A)$. Then we have that 
+Proof ($\impliedby$). Suppose $\lambda > 0$, $\lambda \in \Lambda(A)$. Then we have that for $x\neq 0$, $(x, x) > 0 \iff (\lambda x, x) >0\iff (Ax, x) > 0$ therefore $A$ is positive-definite.\\
 
 \textbf{Question 5.} 
 \begin{itemize}
@@ -82,12 +92,55 @@ We have that
     &=\|\lambda x \| = |\lambda|\|x\| = |\lambda|
 \end{align*}
 
-Then choose $\lambda = \rho(A)$ since this inequality holds for arbitrary eigenvalues. Therefore, $\|A\| \geq \rho(p)$
+Then choose $\lambda = \rho(A)$ since this inequality holds for arbitrary eigenvalues. Therefore, $\|A\| \geq \rho(A)$. \\
 
 \textbf{Question 8. }\\
-
+\begin{itemize}
+    \item[a.] First, note that since $\|A\|_2=\sigma_1$, the largest singular value, this implies by definition that $\|A\|_2 = \sqrt{\rho(A^*A)}$ where $\rho(A)$ is the spectral radius of $A$ since $\sigma_i = \sqrt{\lambda_i}$ where $\lambda_i$ is the ith eigenvalue of $A^*A$. Also, we have that 
+    \begin{equation*}
+        (A^*A) uv^* = vu^*uv^*v^*u = \|u\|_2^2\|v\|_2^2 v^*u
+    \end{equation*}
+    Therefore
+    \begin{align*}
+         \sqrt{\rho(A^*A)} = \sqrt{\|u\|_2^2\|v\|_2^2}=\|v\|_2\|u\|_2
+    \end{align*} 
+    \item[b.] We have that 
+    \begin{align*}
+        \|A\|_F = \sqrt{\sum_{i=1}^m \sum_{j=1}^n |u_i v_j|^2} = \sqrt{\sum_{i=1}^m |u_i|^2\sum_{j=1}^n |v_j|^2}=\sqrt{\|u\|_2^2\|v\|_2^2}=\|u\|_2 \|v\|_2
+    \end{align*} 
+\end{itemize}
 
 \textbf{Question 9.} \\
+\begin{itemize}
+    \item[a.] To show this, we show that $\|Qx\|_2=1$ for any unitary matrix $Q$. By definition, we have that 
+    \begin{align*}
+        \|Qx\| &= \sqrt{(Qx, Qx)}\\
+        &= \sqrt{(Qx)^*Qx}\\
+        &=\sqrt{x^*Q^*Qx}=\sqrt{x^*x}=\sqrt{(x, x)} = \|x\|_2
+    \end{align*} 
+    Therefore, by the associativity of matrix multiplication we have that 
+    \begin{equation*}
+        \|AQ\|_2 = \sup_{\|x\|_2=1}\|AQx\|_2 =\sup_{\|x\|_2=1}\|A(Qx)\|_2= \sup_{\|x\|_2=1}\|A\|_2 = \|A\|
+    \end{equation*}
+    \item[b.] We exploit the fact that $\|A\|_F = \sqrt{tr(A^*A)}=\sqrt{tr(AA^*)}$ from lecture. Then, we have that 
+    \begin{align*}
+        \|AQ\|_F &= \sqrt{tr((AQ)(AQ)^*)}\\
+        &=\sqrt{tr(AQQ^*A^*)}=\sqrt{tr(AA^*)}=\|A\|_F
+    \end{align*} 
+    and 
+    \begin{align*}
+        \|AQ\|_F &= \sqrt{tr((QA)^*(QA))}\\
+        &=\sqrt{tr(A^*Q^*QA)}= \sqrt{tr(A^*A)}=\|A\|_F
+    \end{align*}
+    And the equality $\|AQ\|_F = \|QA\|_F$ comes from transitivity. 
+\end{itemize}
+
+\textbf{Question 10.}
+\begin{itemize}
+    \item[a.] Lemma: The product of two unitary matrices is unitary. Proof: Let $A, B$ be unitary, so $AA^*=I$ and $BB^*=I$. Then $(AB)^*(AB) = B^*A^*AB = B^*IB = B^*B = I$, so $AB$ is unitary. Now let $A=U_A\Sigma_A V_A^*$ be the SVD of $A$ adn $B=U_B\Sigma_B V_B^*$ be the SVD of $B$. Then $A=(QV_B)\Sigma_B(V_BQ^*)$. But this is also the SVD for $A$, so $\Sigma_A = \Sigma_B$ by the uniqueness of the SVD. Since the singular values are the square roots of the diagonal of $\Sigma_A$ and $\Sigma_B$, and these are equal, the singular values of $A$ and $B$ are equal. 
+    \item[b.] Consider $A$ and $-A$. Then 
+\end{itemize}
+
 \textbf{Question 11.}
 \begin{itemize}
     \item[a.] Since $f$ is differentiable, we have that 
@@ -117,6 +170,6 @@ Then choose $\lambda = \rho(A)$ since this inequality holds for arbitrary eigenv
         \includegraphics[scale=0.5]{code/question_12.png}        
     \end{figure} 
     \item[a and b] See figure 
-    \item[c.] Since we are plotting $f$ around 
+    \item[c.] Since we are plotting $f$ around $2$, where the conditioning number goes to $\infty$, we can see the line is perburbed randomly in this domain.
 \end{itemize}
 \end{document}

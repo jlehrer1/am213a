@@ -12,6 +12,7 @@ f2 = np.vectorize(f2)
 
 x = np.arange(1.92, 2.08, 0.001)
 plt.plot(x, f(x), c='Blue', label=r'$(x-2)^9$')
-plt.plot(x, f2(x), c='Red', label=r'Expanded form')
+plt.plot(x, f2(x), c='Red', label=r'Expanded form of $(x-2)^9')
+
 plt.legend()
 plt.savefig('question_12.png')
