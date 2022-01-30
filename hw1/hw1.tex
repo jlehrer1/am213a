@@ -19,7 +19,7 @@
 \maketitle
 \textbf{Question 1}
 Suppose $A$ is both unitary and upper-triangular, that is,
-$A^*A=AA^*=UU^{-1}=I$, Therefore, $a_{ij} = 0$ for $i > j$, that is, $A$ is upper triangular. Then we have that $A^*$, the conjugate transpose, is a lower triangular matrix and that $a^*_{ij} = 0$ for $j < i$. Then for the $i$th row, $A^*A_{i, } = \sum_{j=1}^m A_{i, j}A^*_{i, j}=A_{i, i}A^{*}_{i, i }+ 0+...+0 = AA^*{1, }$. So, $A_{i,j}=0$ for $j \neq i$, so $A$ is diagonal. 
+$A^*A=AA^*=UU^{-1}=I$, Therefore, $a_{ij} = 0$ for $i > j$, that is, $A$ is upper triangular. Then we have that $A^*$, the conjugate transpose, is a lower triangular matrix and that $a^*_{ij} = 0$ for $j < i$. Then for the $i$th row, $A^*A_{i, } = \sum_{j=1}^m A_{i, j}A^*_{i, j}=A_{i, i}A^{*}_{i, i }+ 0+...+0 = AA^*{1, }$. So, $A_{i,j}=0$ for $j \neq i$, and $A$ is diagonal. 
 
 \textbf{Question 2.} 
 \begin{itemize}
@@ -28,7 +28,7 @@ $A^*A=AA^*=UU^{-1}=I$, Therefore, $a_{ij} = 0$ for $i > j$, that is, $A$ is uppe
         A^{-1}Ax &= A^{-1}\left(\lambda x\right) \\ 
         \implies x = A^{-1}\left(\lambda x\right)\\
         \implies x=A^{-1}\lambda x \\
-        \implies A^{-1}x = 1/\lambda x
+        \implies A^{-1}x = (1/\lambda) x
     \end{align*}
     Therefore, $1/\lambda$ is an eigenvalue of $A^{-1}$. 
     \item[b.] Suppose $AB = \lambda x$. Then $BAB x= B\lambda x$. Since linear maps are associative, we have that $(BA)Bx = \lambda(Bx)$, that is, the eigenvalue of $BA$ is the same as $AB$ with a different eigenvector. Therefore, the eigenvalues of $AB$ and $BA$ are the same 
@@ -138,7 +138,7 @@ Then choose $\lambda = \rho(A)$ since this inequality holds for arbitrary eigenv
 \textbf{Question 10.}
 \begin{itemize}
     \item[a.] Lemma: The product of two unitary matrices is unitary. Proof: Let $A, B$ be unitary, so $AA^*=I$ and $BB^*=I$. Then $(AB)^*(AB) = B^*A^*AB = B^*IB = B^*B = I$, so $AB$ is unitary. Now let $A=U_A\Sigma_A V_A^*$ be the SVD of $A$ adn $B=U_B\Sigma_B V_B^*$ be the SVD of $B$. Then $A=(QV_B)\Sigma_B(V_BQ^*)$. But this is also the SVD for $A$, so $\Sigma_A = \Sigma_B$ by the uniqueness of the SVD. Since the singular values are the square roots of the diagonal of $\Sigma_A$ and $\Sigma_B$, and these are equal, the singular values of $A$ and $B$ are equal. 
-    \item[b.] Consider $A$ and $-A$. Then 
+    \item[b.] Consider $A$ and $-A$ where $A$ has positive eigenvalues. Let $A$ have the SVD $A=U_A\Sigma_A V^*_A$. Then $-A = U_A(-\sigma_A)V^*_A$ is the SVD for $-A$. If $A$ and $-A$ are unitarily equivalent, then $A=(QU_A)(-\Sigma_A)(V_A^*Q^*)$. But this is a contradiction, since we assumed the eigenvalues of $A$ are postive, therefore, $A$ and $-A$ are not unitarily equivalent.
 \end{itemize}
 
 \textbf{Question 11.}
