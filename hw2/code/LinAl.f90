@@ -65,6 +65,7 @@ subroutine matrix_trace(A, m, trace)
   real (dp), intent(out) :: trace 
   integer :: i 
 
+  trace = 0.0
   do i=1,m
       trace = trace + A(i, i)
   end do
@@ -160,40 +161,130 @@ subroutine gaussian_elimination(A, B, flag, m, n)
     end if 
 
     do i=j+1, m 
-      A(i, :) = A(i, :) - A(i,j)*A(j, :)/A(j,j)
-      B(i, :) = B(i, :) - A(i, j)*B(j, :)/A(j, j)
+      r = A(i, j)*B(j, :)/A(j, j) !since this gets overwritten
+      A(i, :) = A(i, :) - A(i, j)*A(j, :)/A(j, j)
+      B(i, :) = B(i, :) - r
     end do 
   end do
-  print *, 'hi'
 end subroutine gaussian_elimination
 
 subroutine lu_decomp(A, m, flag, s)
   integer, intent(in) :: m 
-  real (dp), intent(in), dimension(m, m) :: A 
+  real (dp), intent(inout), dimension(m, m) :: A 
 
-  logical, intent(out) :: flag 
-  integer, intent(out), dimension(m) :: s 
+  logical, intent(inout) :: flag 
+  integer, intent(inout), dimension(m) :: s 
 
+  integer :: i, j, K, k2, permtemp ! permutation temp variable for swaps 
+  real (dp) :: p 
+  real (dp), dimension(m) :: temp ! vector for swaps 
+
+  temp = 0.0
+  s = 0.0 
+
+  ! Initialize permutation vector 
+  do j=1,m 
+    s(j) = j
+  end do 
+
+  ! Perform LU loop
+  do j=1, m-1
+    call find_pivot(A, j, K, p, m)
+
+    if (K .ne. j) then 
+      temp = A(K, :)
+      A(K, :) = A(j, :)
+      A(j,: ) = temp 
+
+      permtemp = s(K)
+      s(K) = s(j)
+      s(j) = permtemp
+    end if 
+  
+    if (A(j,j) .eq. 0.0) then 
+      print *, 'Error: Pivot is zero'
+      exit 
+    end if 
+
+    do i=j+1, m 
+      A(i, j) = A(i, j) / A(j, j)
+
+      do k2=j+1,m 
+        A(i, k2) = A(i, k2) - A(i, j)*A(j, k2)
+      end do 
+    end do
+  end do
 end subroutine lu_decomp
 
-subroutine backsolve(U, B, X)
+subroutine LU_backsolve(A, m, b, s, x)
+  ! In this case A is LU where the diagonal is l_{ii}
+  integer, intent(in) :: m 
+  real (dp), intent(inout), dimension(m, m) :: A 
+  real (dp), intent(inout), dimension(m) :: b
+  real (dp), intent(out), dimension(m) :: x 
+  integer, intent(inout), dimension(m) :: s 
+
+  real (dp), dimension(m) :: y 
+  integer :: i, j, k
+  real (dp) :: sum 
+
+  x = 0.0 
+  y = 0.0 
+  do j=1, m 
+    y(i) = b(s(i))
+  end do 
+
+  ! forward substitution for y=L^{-1}Pb 
+  do j=1, m-1 
+    do i=j+1, m 
+      y(i) = y(i) - y(j)*A(i, j)
+    end do
+  end do 
+
+  ! Backsub Ux=y
+  do i=m, 1, -1 
+    if (A(i, i) .eq. 0.0) then 
+      print *, 'Error: matrix is singular'
+      exit 
+    end if 
+    sum = 0.0
+    do k=i+1, m
+      sum = sum + A(i, j) !!??????? confused here
+    end do
+
+  end do
+end subroutine LU_backsolve 
+
+subroutine backsolve(U, B, X, m)
   real (dp), intent(in), dimension(:, :) :: U, B
   real (dp), intent(out), dimension(:, :) :: X
-  real (dp) :: sum 
+  real (dp), dimension(m) :: sumval
+  integer, intent(in) :: m 
+
   integer :: i, k, j
 
   x = 0.0
+  if (U(m, m) .eq. 0) then 
+    print *, "ERROR: Matrix U is singular"
+    return
+  end if 
+  
+  X(m, :) = B(m, :)/U(m, m)
 
-  ! Instead of Ux = b, we have UX = B
-  do j=1, nsize
-    do i=msize-1, 1, -1 
-      sum = 0.0 
-      do k=i+1, msize 
-        sum = sum + U(i, k)*X(j, k)
-      end do 
-    end do 
-    X(i, j) = B(i, j) / U(i, i)
+  do i=m-1, 1, -1 
+    if (U(i, i) .eq. 0.0) then 
+      print *, "ERROR: Matrix U is singular"
+      exit 
+    end if 
+
+    sumval = 0.0 
+
+    do k=i+1,m 
+      sumval = sumval + U(i, k)*X(K, :)
+    end do
+    X(i, :) = (B(i, :) - sumval)/U(i, i)
   end do
+
 end subroutine backsolve
 
 end module LinAl
