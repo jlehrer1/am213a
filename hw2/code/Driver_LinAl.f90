@@ -17,7 +17,10 @@ Program Driver_LinAl
   myFileName = 'Bmat.dat'
   call from_file(myFileName, B)
 
+  print *, 'A is '
   call prettyprint(A, 4, 4)
+
+  print *, 'B is '
   call prettyprint(B, 4, 6)
 
   call matrix_trace(A, 4, traceA)
@@ -28,7 +31,7 @@ Program Driver_LinAl
   allocate(T(4,4))
 
   X = 0.0
-  T=0.0
+  T = 0.0
 
   print *, 'The trace of A is', traceA
 
@@ -38,6 +41,9 @@ Program Driver_LinAl
     print *, 'The norm of column', i, 'is', normval 
   end do 
   
+  print *, 'A before Gaussian elimination is'
+  call prettyprint(A, 4, 4)
+
   call gaussian_elimination(A, B, flag, 4, 6)
 
   print *, 'A after gaussian elimination is'
@@ -46,15 +52,23 @@ Program Driver_LinAl
   print *, 'B after gaussian elimination is'
   call prettyprint(B, 4, 6)
 
-  call backsolve(A, B, X, 4)
+  call backsolve(A, B, X, 4, 6)
   print *, 'Solution matrix is'
+
   call prettyprint(X, 4, 6)
 
   ! print *, 'B after gaussian elimination is'
   ! call prettyprint(B)
   T = matmul(A, X)
+
   print *, 'AX is '
-  call prettyprint(T, 4, 4)
+  call prettyprint(T, 4, 6)
+
+  print *, 'B is '
+  call prettyprint(B, 4,6 )
   ! deallocate(mat)
+
+  print *, 'Error matrix is '
+  call prettyprint(T - B, 4, 6)
 
 End Program Driver_LinAl

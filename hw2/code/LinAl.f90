@@ -118,7 +118,7 @@ subroutine find_pivot(A, j, K, p, m)
   integer :: i 
   p = 0.0 
   
-  do i=j,m  
+  do i=j,m
     if (abs(A(i, j)) > p) then 
       p = abs(A(i, j))
       K = i 
@@ -144,6 +144,8 @@ subroutine gaussian_elimination(A, B, flag, m, n)
   flag = .false. !begin by assuming matrix is not singular
 
   do j=1, m - 1 
+    ! print *, "On step", j, "of Gaussian elimination, the matrix looks like this"
+    ! call prettyprint(A, m, m)
     ! find maximum pivot 
     call find_pivot(A, j, K, p, m)
     
@@ -159,6 +161,9 @@ subroutine gaussian_elimination(A, B, flag, m, n)
       A(K, :) = A(j, :)
       A(j, :) = temp 
     end if 
+
+    ! print *, "On step", j, "of Gaussian elimination, after partial pivoting the matrix looks like this"
+    ! call prettyprint(A, m, m)
 
     do i=j+1, m 
       r = A(i, j)*B(j, :)/A(j, j) !since this gets overwritten
@@ -255,36 +260,58 @@ subroutine LU_backsolve(A, m, b, s, x)
   end do
 end subroutine LU_backsolve 
 
-subroutine backsolve(U, B, X, m)
-  real (dp), intent(in), dimension(:, :) :: U, B
-  real (dp), intent(out), dimension(:, :) :: X
-  real (dp), dimension(m) :: sumval
+subroutine single_backsolve(U, x, b, m)
+  ! Does backsubstitution for Ux = b, where U is upper triangular with size mxm,
+  ! and b is m x1, x is m x 1
+  real (dp), intent(in), dimension(:, :):: U 
+  real (dp), intent(in), dimension(:) :: b 
+  real (dp), intent(inout), dimension(:) :: x 
   integer, intent(in) :: m 
 
-  integer :: i, k, j
+  integer :: i, k 
+  real (dp) :: sum
 
-  x = 0.0
-  if (U(m, m) .eq. 0) then 
-    print *, "ERROR: Matrix U is singular"
-    return
+  if (U(m, m) .eq. 0.0) then
+    print *, 'Error: U is singular'
+    return 
   end if 
-  
-  X(m, :) = B(m, :)/U(m, m)
 
+  x(m) = b(m)/U(m, m)
   do i=m-1, 1, -1 
     if (U(i, i) .eq. 0.0) then 
-      print *, "ERROR: Matrix U is singular"
+      print *, 'Entry at ', i, 'is zero, matrix is singular'
       exit 
     end if 
 
-    sumval = 0.0 
+    sum = 0.0 
+    do k=i+1, m 
+      sum = sum + U(i, k)*x(k)
+    end do 
+    x(i) = (b(i) - sum)/U(i, i)
+  end do 
+end subroutine single_backsolve
 
-    do k=i+1,m 
-      sumval = sumval + U(i, k)*X(K, :)
-    end do
-    X(i, :) = (B(i, :) - sumval)/U(i, i)
-  end do
+subroutine backsolve(U, B, X, m, n)
+  real (dp), intent(in), dimension(:, :) :: U, B
+  real (dp), intent(inout), dimension(:, :) :: X
+  integer, intent(in) :: m, n
+  integer :: i 
 
+  real (dp), dimension(m) :: x_temp, b_temp  
+  X = 0.0 
+
+  do i=1, n
+    x_temp = X(:, i)
+    b_temp = B(:, i)
+
+    print *, ' '
+    print *, 'b_temp is ', b_temp
+    print *, 'x_temp is ', x_temp 
+
+    call single_backsolve(U, x_temp, b_temp, m)
+
+    X(:, i) = x_temp
+  end do 
 end subroutine backsolve
 
 end module LinAl

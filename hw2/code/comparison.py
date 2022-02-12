@@ -15,32 +15,34 @@ B = np.array(
     [1.0, 10.0, -5.0, -5.12, -51.3, 2.356194490192345]]
 )
 
-a = A.copy()
-b = B.copy()[:, 0]
+print(linalg.solve(A, B))
 
-n = len(b)
-x = zeros(n, float)
+# a = A.copy()
+# b = B.copy()[:, 0]
 
-#first loop specifys the fixed row
-for k in range(n-1):
-    if fabs(a[k,k]) < 1.0e-12:
+# n = len(b)
+# x = zeros(n, float)
+
+# #first loop specifys the fixed row
+# for k in range(n-1):
+#     if fabs(a[k,k]) < 1.0e-12:
         
-        for i in range(k+1, n):
-            if fabs(a[i,k]) > fabs(a[k,k]):
-                a[[k,i]] = a[[i,k]]
-                b[[k,i]] = b[[i,k]]
-                break
+#         for i in range(k+1, n):
+#             if fabs(a[i,k]) > fabs(a[k,k]):
+#                 a[[k,i]] = a[[i,k]]
+#                 b[[k,i]] = b[[i,k]]
+#                 break
 
- #applies the elimination below the fixed row
+#  #applies the elimination below the fixed row
 
-    for i in range(k+1,n):
-        if a[i,k] == 0:continue
+#     for i in range(k+1,n):
+#         if a[i,k] == 0:continue
 
-        factor = a[k,k]/a[i,k]
-        for j in range(k,n):
-            a[i,j] = a[k,j] - a[i,j]*factor
-            #we also calculate the b vector of each row
-        b[i] = b[k] - b[i]*factor
-print(a)
-print(b)
+#         factor = a[k,k]/a[i,k]
+#         for j in range(k,n):
+#             a[i,j] = a[k,j] - a[i,j]*factor
+#             #we also calculate the b vector of each row
+#         b[i] = b[k] - b[i]*factor
+# print(a)
+# print(b)
 
