@@ -2,3 +2,5 @@
 *.fls
 *.fdb*
 *.aux
+.DS_Store
+1
