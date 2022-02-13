@@ -193,9 +193,11 @@ subroutine lu_decomp(A, m, flag, s)
   end do 
 
   ! Perform LU loop
-  do j=1, m-1
+  do j=1, m 
+    ! Find index k and pivot p
     call find_pivot(A, j, K, p, m)
 
+    ! Swap rows K and j or A, swap entries K and j of s
     if (K .ne. j) then 
       temp = A(K, :)
       A(K, :) = A(j, :)
@@ -226,38 +228,28 @@ subroutine LU_backsolve(A, m, b, s, x)
   integer, intent(in) :: m 
   real (dp), intent(inout), dimension(m, m) :: A 
   real (dp), intent(inout), dimension(m) :: b
-  real (dp), intent(out), dimension(m) :: x 
+  real (dp), intent(inout), dimension(m) :: x 
+
   integer, intent(inout), dimension(m) :: s 
 
   real (dp), dimension(m) :: y 
-  integer :: i, j, k
-  real (dp) :: sum 
-
+  integer :: i, j
+  
   x = 0.0 
   y = 0.0 
-  do j=1, m 
+
+  do i=1, m
     y(i) = b(s(i))
   end do 
 
   ! forward substitution for y=L^{-1}Pb 
-  do j=1, m-1 
+  do j=1, m-1
     do i=j+1, m 
       y(i) = y(i) - y(j)*A(i, j)
     end do
   end do 
 
-  ! Backsub Ux=y
-  do i=m, 1, -1 
-    if (A(i, i) .eq. 0.0) then 
-      print *, 'Error: matrix is singular'
-      exit 
-    end if 
-    sum = 0.0
-    do k=i+1, m
-      sum = sum + A(i, j) !!??????? confused here
-    end do
-
-  end do
+  call single_backsolve(A, x, y, m)
 end subroutine LU_backsolve 
 
 subroutine single_backsolve(U, x, b, m)
@@ -303,10 +295,6 @@ subroutine backsolve(U, B, X, m, n)
   do i=1, n
     x_temp = X(:, i)
     b_temp = B(:, i)
-
-    print *, ' '
-    print *, 'b_temp is ', b_temp
-    print *, 'x_temp is ', x_temp 
 
     call single_backsolve(U, x_temp, b_temp, m)
 
