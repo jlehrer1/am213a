@@ -40,6 +40,14 @@ subroutine readMat(filename)
 end subroutine readMat
 
 subroutine from_file(filename, matrix)
+  ! Reads a matrix from a file 
+  ! First line of file must contain two integers m & n, 
+  ! definining the number of rows and columns in the matrix, respectively.
+
+  ! Parameters:
+  ! filename: Path to file to read matrix from 
+  ! matrix: allocatable output matrix to write into
+
   character(len=*) :: filename 
   real (dp), intent(out), allocatable, dimension(:, :) :: matrix 
   integer :: i, j, m, n
@@ -60,6 +68,13 @@ subroutine from_file(filename, matrix)
 end subroutine from_file 
 
 subroutine matrix_trace(A, m, trace)
+  ! Calculates the trace of a matrix A 
+
+  ! Parameters:
+  ! A: Matrix to calculate norm of 
+  ! m: Number of rows in A 
+  ! trace: output to store trace value in 
+
   integer, intent(in) :: m
   real (dp), intent(in), dimension(m, m) :: A
   real (dp), intent(out) :: trace 
@@ -72,22 +87,36 @@ subroutine matrix_trace(A, m, trace)
 
 end subroutine matrix_trace
 
-subroutine n_norm(vec, m, norm)
-    integer, intent(in) :: m
-    real (dp), intent(in), dimension(m) :: vec 
-    real (dp), intent(out) :: norm 
+subroutine two_norm(vec, m, norm)
+  ! Calculates the 2 norm of a vector 
 
-    integer :: i
-    norm = 0.0
+  ! Parameters:
+  ! vec: Vector to calculate norm of 
+  ! m: Length of vector 
+  ! norm: Output to store 2 norm value in 
+  integer, intent(in) :: m
+  real (dp), intent(in), dimension(m) :: vec 
+  real (dp), intent(out) :: norm 
 
-    do i=1,m
-      norm = norm + vec(i) ** 2
-    end do
-    norm = sqrt(norm)
 
-end subroutine n_norm
+  integer :: i
+  norm = 0.0
+
+  do i=1,m
+    norm = norm + vec(i) ** 2
+  end do
+  norm = sqrt(norm)
+
+end subroutine two_norm
 
 subroutine prettyprint(A, m, n)
+  ! Prints a 2D array in a human-readable way 
+
+  ! Parameters:
+  ! A: Matrix to print 
+  ! m: Number of rows in matrix 
+  ! n: Number of columns in matrix 
+
   integer, intent(in) :: m, n
   real (dp), intent(in), dimension(:, :) :: A
   integer :: i, j
@@ -95,20 +124,21 @@ subroutine prettyprint(A, m, n)
   do i=1,m
       write(*,"(100g15.5)") ( A(i,j), j=1,n )
   enddo
-
-  ! write(*,"100g15.5") ( matrix(i,j), j=1,n )
-  ! do i=1,m 
-  !   print *, A(i, :)
-  ! end do 
-
   print *, ''
 end subroutine prettyprint
 
 subroutine find_pivot(A, j, K, p, m)
   ! Find the index K and pivot P such that 
   ! p = max_{k=j...,msize} |a_{kj}|
-
   ! This will be used in gaussian elimination with partial pivoting 
+
+  ! Parameters:
+  ! A: Matrix to find max pivot of 
+  ! j: current row index in Gaussian elimination 
+  ! K: output index for pivot row 
+  ! p: output value for maximum pivot 
+  ! m: Number of rows of A 
+
   real (dp), intent(in), dimension(:, :) :: A 
   integer, intent(in) :: j, m
   
@@ -128,11 +158,20 @@ subroutine find_pivot(A, j, K, p, m)
 end subroutine find_pivot 
 
 subroutine gaussian_elimination(A, B, flag, m, n)
+  ! Gaussian elimination operation on A
+
+  ! Parameters:
+  ! A: Matrix corresponding to coefficients of linear equations 
+  ! B: Matrix of RHS b's, [b_1 ... b_n]
+  ! flag: Boolean, .true. if matrix is singular, .false. otherwise
+  ! m: Number of rows & columns in A
+  ! n: Number of columns in B
+
   real (dp), intent(inout), dimension(:, :) :: A, B 
   logical, intent(out) :: flag 
   integer, intent(in) :: m, n
 
-  real (dp) :: p, maxval
+  real (dp) :: p
   real (dp), allocatable, dimension(:) :: temp, r ! keeps vector when we're doing row swaps 
   integer :: i, j, K
 
@@ -153,7 +192,7 @@ subroutine gaussian_elimination(A, B, flag, m, n)
     if (A(j, j) .eq. 0.0) then 
       print *, 'ERROR: Matrix is singular'
       flag = .true.
-      exit 
+      return 
     end if 
 
     if (K .ne. j) then !swap the rows 
@@ -169,11 +208,21 @@ subroutine gaussian_elimination(A, B, flag, m, n)
       r = A(i, j)*B(j, :)/A(j, j) !since this gets overwritten
       A(i, :) = A(i, :) - A(i, j)*A(j, :)/A(j, j)
       B(i, :) = B(i, :) - r
+      print *, 'B(i, :) is ', B(i, :)
     end do 
   end do
+  ! if we made it here then the matrix is nonsingular
+  flag = .false.
 end subroutine gaussian_elimination
 
 subroutine lu_decomp(A, m, flag, s)
+  ! LU Decomposition on A
+
+  ! Parameters:
+  ! A: Matrix of coefficients corresponding to linear equations 
+  ! m: Number of rows & columns of A 
+  ! flag: Boolean, indicated if A is singular 
+  ! s: Vector of length m, equivalent to the permutation matrix P
   integer, intent(in) :: m 
   real (dp), intent(inout), dimension(m, m) :: A 
 
@@ -194,6 +243,7 @@ subroutine lu_decomp(A, m, flag, s)
 
   ! Perform LU loop
   do j=1, m 
+
     ! Find index k and pivot p
     call find_pivot(A, j, K, p, m)
 
@@ -210,7 +260,8 @@ subroutine lu_decomp(A, m, flag, s)
   
     if (A(j,j) .eq. 0.0) then 
       print *, 'Error: Pivot is zero'
-      exit 
+      flag = .true.
+      return 
     end if 
 
     do i=j+1, m 
@@ -221,9 +272,19 @@ subroutine lu_decomp(A, m, flag, s)
       end do 
     end do
   end do
+  flag = .false.
 end subroutine lu_decomp
 
 subroutine LU_backsolve(A, m, b, s, x)
+  ! Backsubsitution for LU 
+
+  ! Parameters:
+  ! A: LU decomposition, stored in the format of 2.55 from the text 
+  ! m: Number of rows & columns of A 
+  ! b: RHS of (LU)x=b, m vector 
+  ! s: Permutation vector from LU decomposition 
+  ! x: Output vector, where the solutions are stored 
+
   ! In this case A is LU where the diagonal is l_{ii}
   integer, intent(in) :: m 
   real (dp), intent(inout), dimension(m, m) :: A 
@@ -253,8 +314,14 @@ subroutine LU_backsolve(A, m, b, s, x)
 end subroutine LU_backsolve 
 
 subroutine single_backsolve(U, x, b, m)
-  ! Does backsubstitution for Ux = b, where U is upper triangular with size mxm,
-  ! and b is m x1, x is m x 1
+  ! Performs backsubstitution for Ux = b
+
+  ! Parameters:
+  ! U: Upper triangular matrix 
+  ! x: m vector, solutions are stored here
+  ! b: m vector, RHS of Ux = b 
+  ! m: number of rows in U 
+
   real (dp), intent(in), dimension(:, :):: U 
   real (dp), intent(in), dimension(:) :: b 
   real (dp), intent(inout), dimension(:) :: x 
@@ -284,6 +351,15 @@ subroutine single_backsolve(U, x, b, m)
 end subroutine single_backsolve
 
 subroutine backsolve(U, B, X, m, n)
+  ! Performs backsubstitution UX=B on Gaussian eliminated matrix U
+
+  ! Parameters:
+  ! U: Upper triangular matrix 
+  ! B: Matrix of RHS vectors 
+  ! X: Matrix where solutions are written to 
+  ! m: Number of rows of U 
+  ! n: Number of columns of B 
+
   real (dp), intent(in), dimension(:, :) :: U, B
   real (dp), intent(inout), dimension(:, :) :: X
   integer, intent(in) :: m, n

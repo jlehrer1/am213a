@@ -1,7 +1,7 @@
 Program Driver_LinAl
 
-  use LinAl, only: readMat, prettyprint, n_norm, matrix_trace, dp, from_file, gaussian_elimination, backsolve, &
-  lu_decomp, LU_backsolve
+  use LinAl, only: readMat, prettyprint, two_norm, matrix_trace, dp, from_file, gaussian_elimination, backsolve, &
+  lu_decomp, LU_backsolve, single_backsolve
 
   implicit none
   
@@ -14,6 +14,16 @@ Program Driver_LinAl
   real (dp), allocatable, dimension(:, :) :: A, B, X, T
   logical :: flag
 
+  ! For question 6
+  real (dp), dimension(4,4) :: plane 
+  real (dp), dimension(4,1) :: b_plane
+  real (dp), dimension(4,1) :: x_plane 
+  integer, dimension(4) :: s_plane ! permutation for s 
+
+  real (dp) :: pi = acos(-1.0_8)
+  real (dp) :: e = dexp(1.0_8)
+
+  ! For array dimensions 
   integer :: m, n 
   m = 4 
   n = 6
@@ -44,7 +54,7 @@ Program Driver_LinAl
 
   do i=1, m
     vec = A(:, i)
-    call n_norm(vec, m, normval)
+    call two_norm(vec, m, normval)
     print *, 'The norm of column', i, 'is', normval 
   end do 
   
@@ -71,10 +81,6 @@ Program Driver_LinAl
   print *, 'AX is '
   call prettyprint(T, m, n)
 
-  print *, 'B is '
-  call prettyprint(B, m, n)
-  ! deallocate(mat)
-
   print *, 'Error matrix from Gaussian elimination is '
   call prettyprint(T - B, m, n)
 
@@ -94,9 +100,6 @@ Program Driver_LinAl
   s = 0
   T = A ! make a copy to keep in LU
 
-  print *, 'Printing matrix A after reset'
-  call prettyprint(A, m, m)
-
   print *, 'Matrix A after LU Decomposition is '
   call lu_decomp(T, m, flag, s)
 
@@ -109,16 +112,39 @@ Program Driver_LinAl
     call LU_backsolve(T, m, vec, s, x_lu)
     print *, 'Solution vector at ', i, 'using LU is '
     print *, x_lu
+
+    print *, 'Error vector is ', matmul(A, x_lu) - vec
+
+    print *, 'Error norm at', i, 'is'
+    call two_norm(matmul(A, x_lu) - vec, m, normval)
+    print *, normval
   end do 
 
-  ! Need to reset A since it is overwritten with LU
-  myFileName = 'Amat.dat'
-  call from_file(myFileName, A)
+! End of QUESTION 5.
+! QUESTION 6: FITTING A PLANE
 
-  print *, 'Ax is '
-  print *, matmul(A, x_lu)
+plane(1, :) = (/1,2,3,1/)
+plane(2, :) = (/-3,2,5,1/)
+plane(3, :) = (/pi, e, -sqrt(2.), 1./)
+plane(4, :) = (/4, 0,-2, 1/)
 
-  print *, 'And b is '
-  print *, vec
+b_plane = 0.0
+x_plane = 0.0 
+s_plane = 0 
+
+m = 4
+print *, 'Equations to solve are'
+call prettyprint(plane, m, m)
+
+print *, 'Using GE, we have that the matrix becomes the upper triangular' 
+call gaussian_elimination(plane, b_plane, flag, m, 1)
+
+print *, b_plane
+call prettyprint(plane, m, m)
+print *, 'And with backsubstitution we have that our solution is'
+
+call backsolve(A, b_plane, x_plane, 4, 1)
+
+print *, x_plane
 
 End Program Driver_LinAl
