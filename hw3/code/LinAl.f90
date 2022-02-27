@@ -6,7 +6,7 @@ module LinAl
 
 contains
 
-subroutine from_file(filename, matrix)
+subroutine from_file(matrix)
   ! Reads a matrix from a file 
   ! First line of file must contain two integers m & n, 
   ! definining the number of rows and columns in the matrix, respectively.
@@ -14,23 +14,14 @@ subroutine from_file(filename, matrix)
   ! Parameters:
   ! filename: Path to file to read matrix from 
   ! matrix: allocatable output matrix to write into
+  real (dp), intent(out), dimension(21, 2) :: matrix 
 
-  character(len=*) :: filename 
-  real (dp), intent(out), allocatable, dimension(:, :) :: matrix 
-  integer :: i, j, m, n
+  integer :: m, n, i, j
 
-  open(10,file=filename)
-  read(10,*) m, n
-  close(10)
-
-  open(10, file=filename)
-  read(10,*) i, j
-
-  allocate(matrix(m, n))
-
-  do i=1,m
-    read(10, *) (matrix(i, j), j=1,n)
-  end do
+  open(10, file='least_squares_data.dat')
+  do i=1, 21
+    read(10, *) (matrix(i, j), j=1,2)
+  end do 
 
 end subroutine from_file 
 
@@ -61,7 +52,6 @@ subroutine cholesky_factorization(A, flag)
     end do 
   end do 
 end subroutine cholesky_factorization
-
 
 subroutine cholesky_backsubsitution(A, b, x)
   real (dp), intent(in), dimension(:, :) :: A 
@@ -95,17 +85,72 @@ subroutine cholesky_backsubsitution(A, b, x)
   end do
 end subroutine cholesky_backsubsitution
 
-subroutine qr_factorization(A, m, n)
+subroutine qr_factorization(A, R, Q, m, n)
   ! Implementation of QR Decomposition via householder
-  real (dp), intent(inout), dimension(:, :) :: A 
   integer, intent(in) :: m, n 
+  real (dp), intent(in), dimension(m, n) :: A
+  real (dp), intent(inout), dimension(m, m) :: Q
+  real (dp), intent(inout), dimension(m, n) :: R
 
-  real (dp), dimension(m) :: v_j 
-  integer :: j, k 
+  real (dp), dimension(m) :: v_j
+  real (dp), dimension(m, m) :: eye 
+  real (dp), dimension(m, m) :: outer_product
+  real (dp) :: s_j
+  integer :: j, k, i
 
-  do j=1,n 
+  ! Setup identity matrix for householder reflections 
 
+  eye = 0.0
+  do i=1, m
+    eye(i, i) = 1.0
   end do 
 
+  R = A 
+  Q = eye
+  do j=1, n
+    v_j = 0.0
+    s_j = 0.0
+    
+    do k=j, m
+      s_j = s_j + R(k, j)**2
+    end do 
+    s_j = sqrt(s_j)
+
+    if (A(j, j) < 0.0) then
+      s_j = -s_j
+    end if
+
+    v_j(j) = A(j, j) + s_j
+    v_j(j+1:) = A(j+1:, j)
+    v_j = v_j / norm2(v_j)
+    
+    do i=1,m 
+      do k=1, m
+        outer_product(i, j) = v_j(i)*v_j(k)
+      end do
+    end do
+
+    Q = matmul(Q, eye - 2*outer_product)
+    R = R - 2*matmul(outer_product, R)
+  end do
 end subroutine qr_factorization
+
+subroutine prettyprint(A, m, n)
+  ! Prints a 2D array in a human-readable way 
+
+  ! Parameters:
+  ! A: Matrix to print 
+  ! m: Number of rows in matrix 
+  ! n: Number of columns in matrix 
+
+  integer, intent(in) :: m, n
+  real (dp), intent(in), dimension(:, :) :: A
+  integer :: i, j
+
+  do i=1,m
+      write(*,"(100g15.5)") ( A(i,j), j=1,n )
+  enddo
+  print *, ''
+end subroutine prettyprint
+
 end module LinAl
