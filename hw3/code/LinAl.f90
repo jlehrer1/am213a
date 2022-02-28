@@ -16,7 +16,7 @@ subroutine from_file(matrix)
   ! matrix: allocatable output matrix to write into
   real (dp), intent(out), dimension(21, 2) :: matrix 
 
-  integer :: m, n, i, j
+  integer :: i, j
 
   open(10, file='least_squares_data.dat')
   do i=1, 21
@@ -24,6 +24,22 @@ subroutine from_file(matrix)
   end do 
 
 end subroutine from_file 
+
+subroutine make_A_b(A, b)
+  real (dp), intent(out), dimension(21, 1) :: A, b
+  real (dp), dimension(21, 2) :: matrix 
+
+  integer :: i, j
+
+  open(10, file='least_squares_data.dat')
+  do i=1, 21
+    read(10, *) (matrix(i, j), j=1,2)
+  end do 
+
+  A(:, 1) = matrix(:, 1)
+  b(:, 1) = matrix(:, 2)
+  
+end subroutine make_A_b
 
 subroutine cholesky_factorization(A, flag) 
   real (dp), intent(inout), dimension(:, :) :: A 
@@ -73,7 +89,7 @@ subroutine cholesky_backsubsitution(A, b, x)
   end do 
 
   ! Calculate L^* x = y 
-  do i=ubound(A, 1), 1, -1 
+  do i=ubound(A, 1), 1, -1
     if (A(i, i) .eq. 0.0) then 
       print *, 'Error, matrix is sinular'
       return 
@@ -123,10 +139,10 @@ subroutine qr_factorization(A, R, Q, m, n)
     v_j(j) = A(j, j) + s_j
     v_j(j+1:) = A(j+1:, j)
     v_j = v_j / norm2(v_j)
-    
-    do i=1,m 
+
+    do i=1,m
       do k=1, m
-        outer_product(i, j) = v_j(i)*v_j(k)
+        outer_product(i, k) = v_j(i)*v_j(k)
       end do
     end do
 
@@ -134,6 +150,43 @@ subroutine qr_factorization(A, R, Q, m, n)
     R = R - 2*matmul(outer_product, R)
   end do
 end subroutine qr_factorization
+
+subroutine backsubstitution(U, x, b, m)
+  ! Performs backsubstitution for Ux = b
+
+  ! Parameters:
+  ! U: Upper triangular matrix 
+  ! x: m vector, solutions are stored here
+  ! b: m vector, RHS of Ux = b 
+  ! m: number of rows in U 
+
+  real (dp), intent(in), dimension(:, :):: U 
+  real (dp), intent(in), dimension(:) :: b 
+  real (dp), intent(inout), dimension(:) :: x 
+  integer, intent(in) :: m 
+
+  integer :: i, k 
+  real (dp) :: sum
+
+  if (U(m, m) .eq. 0.0) then
+    print *, 'Error: U is singular'
+    return 
+  end if 
+
+  x(m) = b(m)/U(m, m)
+  do i=m-1, 1, -1 
+    if (U(i, i) .eq. 0.0) then 
+      print *, 'Entry at ', i, 'is zero, matrix is singular'
+      exit 
+    end if 
+
+    sum = 0.0 
+    do k=i+1, m 
+      sum = sum + U(i, k)*x(k)
+    end do 
+    x(i) = (b(i) - sum)/U(i, i)
+  end do 
+end subroutine backsubstitution
 
 subroutine prettyprint(A, m, n)
   ! Prints a 2D array in a human-readable way 
@@ -152,5 +205,23 @@ subroutine prettyprint(A, m, n)
   enddo
   print *, ''
 end subroutine prettyprint
+
+subroutine frobenius_norm(A, m, n, norm)
+  integer, intent(in) :: m, n 
+  real (dp), intent(in), dimension(:, :) :: A 
+  real (dp), intent(out) :: norm 
+
+  integer :: i, j 
+
+  norm = 0
+
+  do i=1,m 
+    do j=1,n
+      norm = norm + abs(A(i, j))
+    end do 
+  end do 
+
+  norm = sqrt(norm)
+end subroutine frobenius_norm
 
 end module LinAl
