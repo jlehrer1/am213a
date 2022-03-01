@@ -27,8 +27,7 @@ Once we do this process for the Vandermonde equation of the nth degree, we obtai
     \subfloat[\centering 3rd Degree]{{\includegraphics[width=5cm]{code/3d_degree_double.png} }}%
     \qquad
     \subfloat[\centering 5th Degree]{{\includegraphics[width=5cm]{code/5th-degree_double.png} }}%
-    \caption{2 Figures side by side}%
-    \label{3rd ad 5th degree fitting polynomials, double precision}%
+    \caption{3rd ad 5th degree fitting polynomials, double precision}%
 \end{figure}
 
 \begin{figure}[H]
@@ -36,8 +35,7 @@ Once we do this process for the Vandermonde equation of the nth degree, we obtai
     \subfloat[\centering 3rd Degree]{{\includegraphics[width=5cm]{code/3d_degree.png} }}%
     \qquad
     \subfloat[\centering 5th Degree]{{\includegraphics[width=5cm]{code/5th-degree.png} }}%
-    \caption{2 Figures side by side}%
-    \label{3rd ad 5th degree fitting polynomials, single precision}%
+    \caption{3rd ad 5th degree fitting polynomials, single precision}%
 \end{figure}
 
 The error norm for the 3rd degree polynomial is $E=0.24457513137092401$, with coefficients (in order of $a_0, a_1,...$) are $1.8319077733859925       -5.1704640498915211        11.204369949906708       -7.2851782508526979$, while the error for the 5th degree polynomial is $E=0.17274771750962886$ with coefficients $1.8695429787610824       -7.2643083756061975        28.817794766608223       -58.761979247240859        61.053318109931141       -25.212434983094763$ which is lower than the 3rd degree. However, as the degree of the polynomial increases, the absolute magnitude of the coefficients increase as well. Therefore, with $n=20$, the magnitude of the coefficients is larger than the maximum value for a double precision float, and therefore the polynomial is not well defined, since the coefficients are $NaN$. \\
