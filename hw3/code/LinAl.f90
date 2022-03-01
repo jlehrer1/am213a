@@ -161,8 +161,8 @@ subroutine backsubstitution(U, x, b, m)
   ! m: number of rows in U 
 
   real (dp), intent(in), dimension(:, :):: U 
-  real (dp), intent(in), dimension(:) :: b 
-  real (dp), intent(inout), dimension(:) :: x 
+  real (dp), intent(in), dimension(:) :: b
+  real (dp), intent(inout), dimension(:) :: x
   integer, intent(in) :: m 
 
   integer :: i, k 
