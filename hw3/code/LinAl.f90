@@ -1,7 +1,7 @@
 module LinAl
   implicit none
   integer, save :: msize, nsize
-  integer, parameter :: dp = SELECTED_REAL_KIND(15) ! to use double precision throughout 
+  integer, parameter :: dp = SELECTED_REAL_KIND(6) ! to use double precision throughout 
   real (dp), dimension(:,:), allocatable, save :: mat
 
 contains
@@ -26,6 +26,11 @@ subroutine from_file(matrix)
 end subroutine from_file 
 
 subroutine make_A_b(A, b)
+  ! Generates the data matrices A and b, where each row i of A contains x_i and b contains the output y 
+
+  ! Parameters:
+  ! A: Matrix to write x_i's to
+  ! b: Matrix to write y_i's to
   real (dp), intent(out), dimension(21, 1) :: A, b
   real (dp), dimension(21, 2) :: matrix 
 
@@ -42,6 +47,13 @@ subroutine make_A_b(A, b)
 end subroutine make_A_b
 
 subroutine cholesky_factorization(A, flag) 
+  ! Calculates the Cholesky factorization of A
+  ! by transforming A into the lowre triangular matrix L
+
+  ! Parameters
+  ! A: Matrix to be transformed 
+  ! flag: logical, true if A is singular, false otherwise
+
   real (dp), intent(inout), dimension(:, :) :: A 
   logical, intent(out) :: flag 
 
@@ -70,6 +82,13 @@ subroutine cholesky_factorization(A, flag)
 end subroutine cholesky_factorization
 
 subroutine cholesky_backsubsitution(A, b, x)
+  ! Calculates the solution L^*L x = b, where L is a lower triangular matrix. This is for backsubstitution after Cholesky decomposition 
+
+  ! Parameters: 
+  ! A: Lower triangular matrix generated from Cholesky factorization 
+  ! b: RHS of Ax=b 
+  ! x: output to write solution vector to 
+
   real (dp), intent(in), dimension(:, :) :: A 
   real (dp), intent(in), dimension(:) ::  b 
   real (dp), intent(inout), dimension(:) :: x 
@@ -91,7 +110,7 @@ subroutine cholesky_backsubsitution(A, b, x)
   ! Calculate L^* x = y 
   do i=ubound(A, 1), 1, -1
     if (A(i, i) .eq. 0.0) then 
-      print *, 'Error, matrix is sinular'
+      print *, 'Error, matrix is singular'
       return 
     end if 
     do k=i+1, ubound(A, 1)
@@ -102,7 +121,15 @@ subroutine cholesky_backsubsitution(A, b, x)
 end subroutine cholesky_backsubsitution
 
 subroutine qr_factorization(A, R, Q, m, n)
-  ! Implementation of QR Decomposition via householder
+  ! Implementation of QR Decomposition via Householder reflections 
+  
+  ! Parameters:
+  ! A: Input matrix to factorize 
+  ! R: Matrix to write upper triangular part of QR factorization to 
+  ! Q: Matrix to write orthogonal part Q of QR factorization to 
+  ! m: Number of rows in A 
+  ! n: Number of columns in A
+
   integer, intent(in) :: m, n 
   real (dp), intent(in), dimension(m, n) :: A
   real (dp), intent(inout), dimension(m, m) :: Q
@@ -207,6 +234,14 @@ subroutine prettyprint(A, m, n)
 end subroutine prettyprint
 
 subroutine frobenius_norm(A, m, n, norm)
+  ! Calculates the Frobenius norm of a matrix A 
+
+  ! Parameters:
+  ! A: Matrix to calculate norm of 
+  ! m: Number of rows in A 
+  ! n: Number of columns in A 
+  ! norm: Output variable to store Frobenius norm of A to 
+
   integer, intent(in) :: m, n 
   real (dp), intent(in), dimension(:, :) :: A 
   real (dp), intent(out) :: norm 
