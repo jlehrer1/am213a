@@ -108,7 +108,6 @@ Program Driver_LinAl
 
   do i=1, n 
     vec = B(:, i)
-    x_lu = B(:, i)
     call LU_backsolve(T, m, vec, s, x_lu)
     print *, 'Solution vector at ', i, 'using LU is '
     print *, x_lu

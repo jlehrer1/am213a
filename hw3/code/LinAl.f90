@@ -1,12 +1,12 @@
 module LinAl
   implicit none
   integer, save :: msize, nsize
-  integer, parameter :: dp = SELECTED_REAL_KIND(15) ! to use double precision throughout 
+  integer, parameter :: dp = SELECTED_REAL_KIND(6) ! to use double precision throughout 
   real (dp), dimension(:,:), allocatable, save :: mat
 
 contains
 
-subroutine from_file(filename, matrix)
+subroutine from_file(matrix)
   ! Reads a matrix from a file 
   ! First line of file must contain two integers m & n, 
   ! definining the number of rows and columns in the matrix, respectively.
@@ -14,27 +14,46 @@ subroutine from_file(filename, matrix)
   ! Parameters:
   ! filename: Path to file to read matrix from 
   ! matrix: allocatable output matrix to write into
+  real (dp), intent(out), dimension(21, 2) :: matrix 
 
-  character(len=*) :: filename 
-  real (dp), intent(out), allocatable, dimension(:, :) :: matrix 
-  integer :: i, j, m, n
+  integer :: i, j
 
-  open(10,file=filename)
-  read(10,*) m, n
-  close(10)
-
-  open(10, file=filename)
-  read(10,*) i, j
-
-  allocate(matrix(m, n))
-
-  do i=1,m
-    read(10, *) (matrix(i, j), j=1,n)
-  end do
+  open(10, file='least_squares_data.dat')
+  do i=1, 21
+    read(10, *) (matrix(i, j), j=1,2)
+  end do 
 
 end subroutine from_file 
 
+subroutine make_A_b(A, b)
+  ! Generates the data matrices A and b, where each row i of A contains x_i and b contains the output y 
+
+  ! Parameters:
+  ! A: Matrix to write x_i's to
+  ! b: Matrix to write y_i's to
+  real (dp), intent(out), dimension(21, 1) :: A, b
+  real (dp), dimension(21, 2) :: matrix 
+
+  integer :: i, j
+
+  open(10, file='least_squares_data.dat')
+  do i=1, 21
+    read(10, *) (matrix(i, j), j=1,2)
+  end do 
+
+  A(:, 1) = matrix(:, 1)
+  b(:, 1) = matrix(:, 2)
+  
+end subroutine make_A_b
+
 subroutine cholesky_factorization(A, flag) 
+  ! Calculates the Cholesky factorization of A
+  ! by transforming A into the lowre triangular matrix L
+
+  ! Parameters
+  ! A: Matrix to be transformed 
+  ! flag: logical, true if A is singular, false otherwise
+
   real (dp), intent(inout), dimension(:, :) :: A 
   logical, intent(out) :: flag 
 
@@ -62,8 +81,14 @@ subroutine cholesky_factorization(A, flag)
   end do 
 end subroutine cholesky_factorization
 
-
 subroutine cholesky_backsubsitution(A, b, x)
+  ! Calculates the solution L^*L x = b, where L is a lower triangular matrix. This is for backsubstitution after Cholesky decomposition 
+
+  ! Parameters: 
+  ! A: Lower triangular matrix generated from Cholesky factorization 
+  ! b: RHS of Ax=b 
+  ! x: output to write solution vector to 
+
   real (dp), intent(in), dimension(:, :) :: A 
   real (dp), intent(in), dimension(:) ::  b 
   real (dp), intent(inout), dimension(:) :: x 
@@ -83,9 +108,9 @@ subroutine cholesky_backsubsitution(A, b, x)
   end do 
 
   ! Calculate L^* x = y 
-  do i=ubound(A, 1), 1, -1 
+  do i=ubound(A, 1), 1, -1
     if (A(i, i) .eq. 0.0) then 
-      print *, 'Error, matrix is sinular'
+      print *, 'Error, matrix is singular'
       return 
     end if 
     do k=i+1, ubound(A, 1)
@@ -95,17 +120,143 @@ subroutine cholesky_backsubsitution(A, b, x)
   end do
 end subroutine cholesky_backsubsitution
 
-subroutine qr_factorization(A, m, n)
-  ! Implementation of QR Decomposition via householder
-  real (dp), intent(inout), dimension(:, :) :: A 
+subroutine qr_factorization(A, R, Q, m, n)
+  ! Implementation of QR Decomposition via Householder reflections 
+  
+  ! Parameters:
+  ! A: Input matrix to factorize 
+  ! R: Matrix to write upper triangular part of QR factorization to 
+  ! Q: Matrix to write orthogonal part Q of QR factorization to 
+  ! m: Number of rows in A 
+  ! n: Number of columns in A
+
   integer, intent(in) :: m, n 
+  real (dp), intent(in), dimension(m, n) :: A
+  real (dp), intent(inout), dimension(m, m) :: Q
+  real (dp), intent(inout), dimension(m, n) :: R
 
-  real (dp), dimension(m) :: v_j 
-  integer :: j, k 
+  real (dp), dimension(m) :: v_j
+  real (dp), dimension(m, m) :: eye 
+  real (dp), dimension(m, m) :: outer_product
+  real (dp) :: s_j
+  integer :: j, k, i
 
-  do j=1,n 
+  ! Setup identity matrix for householder reflections 
 
+  eye = 0.0
+  do i=1, m
+    eye(i, i) = 1.0
   end do 
 
+  R = A 
+  Q = eye
+  do j=1, n
+    v_j = 0.0
+    s_j = 0.0
+    
+    do k=j, m
+      s_j = s_j + R(k, j)**2
+    end do 
+    s_j = sqrt(s_j)
+
+    if (A(j, j) < 0.0) then
+      s_j = -s_j
+    end if
+
+    v_j(j) = A(j, j) + s_j
+    v_j(j+1:) = A(j+1:, j)
+    v_j = v_j / norm2(v_j)
+
+    do i=1,m
+      do k=1, m
+        outer_product(i, k) = v_j(i)*v_j(k)
+      end do
+    end do
+
+    Q = matmul(Q, eye - 2*outer_product)
+    R = R - 2*matmul(outer_product, R)
+  end do
 end subroutine qr_factorization
+
+subroutine backsubstitution(U, x, b, m)
+  ! Performs backsubstitution for Ux = b
+
+  ! Parameters:
+  ! U: Upper triangular matrix 
+  ! x: m vector, solutions are stored here
+  ! b: m vector, RHS of Ux = b 
+  ! m: number of rows in U 
+
+  real (dp), intent(in), dimension(:, :):: U 
+  real (dp), intent(in), dimension(:) :: b
+  real (dp), intent(inout), dimension(:) :: x
+  integer, intent(in) :: m 
+
+  integer :: i, k 
+  real (dp) :: sum
+
+  if (U(m, m) .eq. 0.0) then
+    print *, 'Error: U is singular'
+    return 
+  end if 
+
+  x(m) = b(m)/U(m, m)
+  do i=m-1, 1, -1 
+    if (U(i, i) .eq. 0.0) then 
+      print *, 'Entry at ', i, 'is zero, matrix is singular'
+      exit 
+    end if 
+
+    sum = 0.0 
+    do k=i+1, m 
+      sum = sum + U(i, k)*x(k)
+    end do 
+    x(i) = (b(i) - sum)/U(i, i)
+  end do 
+end subroutine backsubstitution
+
+subroutine prettyprint(A, m, n)
+  ! Prints a 2D array in a human-readable way 
+
+  ! Parameters:
+  ! A: Matrix to print 
+  ! m: Number of rows in matrix 
+  ! n: Number of columns in matrix 
+
+  integer, intent(in) :: m, n
+  real (dp), intent(in), dimension(:, :) :: A
+  integer :: i, j
+
+  do i=1,m
+      write(*,"(100g15.5)") ( A(i,j), j=1,n )
+  enddo
+  print *, ''
+end subroutine prettyprint
+
+subroutine frobenius_norm(A, m, n, norm)
+  ! Calculates the Frobenius norm of a matrix A 
+
+  ! Parameters:
+  ! A: Matrix to calculate norm of 
+  ! m: Number of rows in A 
+  ! n: Number of columns in A 
+  ! norm: Output variable to store Frobenius norm of A to 
+
+  integer, intent(in) :: m, n 
+  real (dp), intent(in), dimension(:, :) :: A 
+  real (dp), intent(out) :: norm 
+
+  integer :: i, j 
+
+  norm = 0
+
+  do i=1,m 
+    do j=1,n
+      norm = norm + abs(A(i, j))
+    end do 
+  end do 
+
+  norm = sqrt(norm)
+end subroutine frobenius_norm
+
 end module LinAl

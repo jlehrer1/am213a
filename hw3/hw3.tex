@@ -10,10 +10,41 @@
 \newcommand{\C}{\mathbb{C}}
 \newcommand{\ra}{\longrightarrow}
 
-\title{}
+\title{Homework 3: Theory Questions}
 \date{}
-\author{}
+\author{Julian Lehrer}
 \begin{document}
 \maketitle
+\textbf{Question 1.} We want to show that if $P$ is an orthogonal projector, that is $P^2=P$ and $P=P*$, then $B=(I-2P)$ is unitary, that is $B^* = B^{-1}$. Then we have that 
+\begin{align*}
+    (I-2P)(I-2P)^* &= (I-2P)(I^*-P^*2^*)\\
+    &=(I-2P)(I-2P^*) = (II - 2IP^* - 2PI+4PP^*)\\
+    &= I - 4P^*P + 4PP^* = I
+\end{align*}
+As desired. \\
+
+\textbf{Question 2.}
+\begin{itemize}
+    \item[a.] Let $P^2=P$ and $P \neq 0$. Then by the Cauchy-Schwartz inequality, we have that $\|P^2\|^2_2 \leq \|P\|_2 \|P\|_2$. But since $\|P^2\|_2 = \|P\|_2$, $\|P\| \leq \|P\|_2^{2}$ so $\|P\|_2 \geq 1$. This holds for orthogonal projectors, since that is an extra condition on the proof. Now let $P$ be an orthogonal projector, so $P^* = P$. 
+    \item[b.] First, consider that if $Px=\lambda x$, and $P^2x = \lambda x$, then $P^2x = P(Px) = P(\lambda x) = \lambda \lambda x = \lambda^2 x$. So $\lambda x= \lambda^2x$, therefore, $\lambda^2-\lambda = 0 \iff (\lambda-1)\lambda = 0 \implies \lambda = 0,1$, so the eigenvalues are zero or one. 
+\end{itemize}
+
+\textbf{Question 3.}
+\begin{itemize}
+    \item[a.] Let $R \equiv \hat{R}$.
+    Proof ($\implies$). If $A$ is full rank $n$ (since rank is at most $\min{m, n}$), then $A^TA$ is an $m \times m$ matrix with rank $m$, and is hence invertible. Therefore, consider the $QR$ decomp of $A$, and we must have that $A^TA = (QR)^T(QR)=R^TQ^TQR = R^TR$ since $Q$ is orthogonal. Hence $R^TR$ is invertible. Since $R$ is by construction upper-triangular, we must have that the columns of $R$ are linearly independent. Therefore, if any column $i$ has a zero on the diagonal, then it is a linear combination of the $i-1$th row. Therefore, the diagonal entries of $R$ are nonzero. \\
+    Proof ($\impliedby$). Suppose the diagonal entries of $R$ are nonzero and let $QR$ be the $QR$ decomposition of $A$. Then $R^*R$ is invertible, so $R^*R = (QR)^*(QR) = A^*A$ is invertible. Therefore, $A$ is full rank, i.e. rank $n$. 
+    \item[b.] Since the rank of $R$ is the dimension of its image, the vectors corresponding to the nonzero entries will be in the basis for the image of $R$. Since we have $k$ nonzero entries, then $rank(A) \geq k$. Also, since there are $k-n-1$ other linearly independent vectors in the span of $R$, we have that $k \leq rank(A) \leq n-1$.
+\end{itemize}
+
+\textbf{Question 4.} Consider the Householder transformation given by $H=I-2vv^T$, where $vv^T$ is the outer product. 
+
+Then from (1), we have that if $P=vv^T$, then $H=I-2P$ is an orthogonal projector. We know that orthogonal projectors have eigenvalues $\pm 1$. Additionally, since if $\sigma_1,..,\sigma_n$ are the singular values of $H$, then $\sigma_1^2,...,\sigma_n^2$ are the singular values of $H^T H$ (see my derivation in (5)), but since $H^T H = I$, we have that $\sigma=1$, that is, the singular values are $1$. This also makes geometric sense, since the hyperellipse given by the set $S$ is taken to $HS = S$, that is, the principal axis are not scaled at all. Therefore, the eigenvalues are $\pm 1$, and the determinant is either $1$ or $0$, which we know since $H$ is an orthogonal projector.
+
+\textbf{Question 5.} First, consider the SVD of $A$ as $A=U\Sigma V^{T}$. Then we have that $A^TA=V\Sigma U^T U \Sigma V^T = V(\Sigma\Sigma^T)V^T = V(\Sigma^2)V^T$. So if the singular values of $A$ are $\sigma_{\min},.,..\sigma_{\max}$, then the singular values of $\sigma_{\min}^2,...,\sigma_{\max}^2$. Then
+
+\begin{equation*}
+    cond(A) = \frac{(\sigma_{\max}A)^2}{(\sigma_{\min}A)^2} = \frac{\sigma_{\max}A^TA}{\sigma_{\min}A^TA} = cond(A^T A)
+\end{equation*}
 
 \end{document}

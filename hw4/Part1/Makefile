@@ -10,11 +10,8 @@ output.txt: LinAl.exe
 LinAl.exe: $(MODULES) $(OBJECTS)
 	gfortran $(OBJECTS) $(CHECKS) -o LinAl.exe
 
-Q2: 
-	gfortran $(CHECKS) LinAl.f90 question2.f90 -o question2
-
-Q1:
-	gfortran $(CHECKS) LinAl.f90 question1.f90 -o question1
+build: 
+	gfortran $(CHECKS) LinAl.f90 tests.f90 -o tests
 
 %.o: %.f90
 	gfortran -c -fdefault-real-8 -fdefault-double-8 $(CHECKS) $<

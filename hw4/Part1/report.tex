@@ -1,0 +1,42 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\setlength{\parindent}{0pt} 
+\usepackage{amssymb}
+\usepackage{amsmath}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\ra}{\longrightarrow}
+
+\title{Programming Report}
+\date{}
+\author{Julian Lehrer}
+\begin{document}
+\maketitle
+\textbf{Question 1.} Here, we write the subroutine to map a square matrix $A \ra A_H$, where $A_H$ is the Hessenberg form of $A$. To do so, we write the \textit{hessenberg} subroutine, which uses a modified Householder transform to perform the mapping. This is essentially the same as computing the QR decomposition of $A$ via Householder reflections, except we consider our vector $v_j$ which forms the Householder reflection to have nonzero entries starting at the $j+1$th row index. This way, the subdiagonal of $A$ is nonzero and doesn't get transformed into $R$. The inputs are $A$ and $m$, where $A$ is a $m \times m$ matrix. The subroutine changes $A$ to $A_H$.\\
+
+The float-truncated tridiagonal (Hessenberg) form of our symmetric matrix then becomes 
+\begin{equation*}
+    A_H=\begin{pmatrix}
+        5&-4.2426& 0 & 0 \\
+        -4.2426&6&1.1412& 0 \\
+        06&1.4142&5&0\\
+        0&0&0&2    
+    \end{pmatrix}
+\end{equation*}
+
+\textbf{Question 2.} We consider both the QR algorithm with shift, and the QR algorithm without shift. First, we consider solving the problem analytically, which gives us the characteristic equation 
+\begin{equation*}
+    -\lambda^3 +6\lambda^2 -9\lambda + 2=0
+\end{equation*}
+Therefore, 
+\begin{equation*}
+    \lambda = 2, 2+\sqrt{3}, 2-\sqrt{3} = 2, \approx 3.7321, \approx 0.26795
+\end{equation*}
+
+The QR algorithm without shift reaches an error tolerance of $\epsilon = 1e-6$ in $12$ iterations, and recapitulates the eigenvalues $\lambda = 3.7321, 2.0000, 0.26795$ along the diagonal of $A$, as desired. The QR algorithm with shift 
+
+\textbf{Question 3.} First, we consider a slight modification of the Inverse Iteration algorithm. Instead of considering $y = Bx/\|Bx\|$ where $B=(A-\mu I)^{-1}$, we equivalently solving $(A-\mu I)y = x$ and then $x := x/\|x\|$. This algorithm reveals the eigenvector, with tolerance $\epsilon = 1e-6$. 
+\end{document}
