@@ -2,8 +2,7 @@ module LinAl
   implicit none
   integer, save :: msize, nsize
   integer, parameter :: dp = SELECTED_REAL_KIND(6) ! to use double precision throughout 
-  real (dp), dimension(:,:), allocatable, save :: mat
-
+  real (dp), dimension(:, :), allocatable, save :: mat
 contains
 
 subroutine qr_factorization(A, R, Q, m, n)
@@ -51,7 +50,10 @@ subroutine qr_factorization(A, R, Q, m, n)
 
     v_j(j) = A(j, j) + s_j
     v_j(j+1:) = A(j+1:, j)
-    v_j = v_j / norm2(v_j)
+
+    if (norm2(v_j) .ne. 0.0) then 
+      v_j = v_j / norm2(v_j)
+    end if
 
     do i=1,m
       do k=1, m
@@ -159,18 +161,9 @@ subroutine QR_with_shift(A, m, max_iter)
   do while (k .le. max_iter)
     ! Run alg.
     mu = A(m, m)
-    call qr_factorization(A - mu*eye, R, Q, m ,m)
-    
-    print *, 'R is'
-    call prettyprint(R, m, m)
+    call qr_factorization(A - mu*eye, R, Q, m, m)
 
-    print *, 'Q is '
-    call prettyprint(Q, m, m)
-    A = matmul(R, Q) + mu*eye
-
-    print *, 'A is'
-    call prettyprint(A, m, m)
-
+    A = matmul(R, Q) + mu*eye 
     ! Calculate error 
     do i=1, m 
       diag(i) = A(i, i)
@@ -193,11 +186,11 @@ end subroutine QR_with_shift
 subroutine inverse_iteration(A, x, m, mu, max_iter)
   integer, intent(in) :: m, max_iter
   real (dp), intent(in), dimension(m, m) :: A 
-  real (dp), intent(out), dimension(m):: x
+  real (dp), intent(out), dimension(m) :: x
   real, intent(in) :: mu
 
   integer :: k
-  real (dp) :: eps = 1e-7
+  real (dp) :: eps = 1e-6
   real (dp), dimension(m) :: r, y
   integer (dp), dimension(m) :: s
   real (dp), dimension(m, m) :: B, eye 
@@ -214,17 +207,19 @@ subroutine inverse_iteration(A, x, m, mu, max_iter)
 
   x = 0.
   x(1) = 1.
-  k = 0 
+  k = 0
 
   do while (k .le. max_iter)
-    call lu_decomp(B, m, flag, s)
-    call lu_backsolve(B, m, x, s, y)
+    call gaussian_elimination(B, x, flag, m, m)
+    call single_backsolve(B, y, x, m)
+
     y = y / norm2(y)
 
-    ! if (norm2(y - x) .le. eps) then 
-    !   print *, 'Convergence reached on iteration', k 
-    !   return
-    ! end if
+    if (norm2(y - x) .le. eps) then 
+      print *, 'Convergence reached on iteration', k 
+      return
+    end if
+
     x = y
     k = k + 1
   end do
@@ -232,7 +227,7 @@ subroutine inverse_iteration(A, x, m, mu, max_iter)
 end subroutine inverse_iteration
 
 
-subroutine gaussian_elimination(A, B, flag, m, n)
+subroutine gaussian_elimination(A, b, flag, m, n)
   ! Gaussian elimination operation on A
 
   ! Parameters:
@@ -242,11 +237,12 @@ subroutine gaussian_elimination(A, B, flag, m, n)
   ! m: Number of rows & columns in A
   ! n: Number of columns in B
 
-  real (dp), intent(inout), dimension(:, :) :: A, B 
+  real (dp), intent(inout), dimension(:, :) :: A
+  real (dp), intent(inout), dimension(:) :: b
   logical, intent(out) :: flag 
   integer, intent(in) :: m, n
 
-  real (dp) :: p
+  real (dp) :: p, divisor
   real (dp), allocatable, dimension(:) :: temp, r ! keeps vector when we're doing row swaps 
   integer :: i, j, K
 
@@ -280,10 +276,9 @@ subroutine gaussian_elimination(A, B, flag, m, n)
     ! call prettyprint(A, m, m)
 
     do i=j+1, m 
-      r = A(i, j)*B(j, :)/A(j, j) !since this gets overwritten
-      A(i, :) = A(i, :) - A(i, j)*A(j, :)/A(j, j)
-      B(i, :) = B(i, :) - r
-      print *, 'B(i, :) is ', B(i, :)
+      divisor =  A(i, j)/A(j, j) !since this gets overwritten
+      A(i, :) = A(i, :) - A(j, :)*divisor
+      b(i) = b(i) - b(j)*divisor
     end do 
   end do
   ! if we made it here then the matrix is nonsingular
@@ -319,104 +314,6 @@ subroutine find_pivot(A, j, K, p, m)
   end do
 
 end subroutine find_pivot 
-
-subroutine lu_decomp(A, m, flag, s)
-  ! LU Decomposition on A
-
-  ! Parameters:
-  ! A: Matrix of coefficients corresponding to linear equations 
-  ! m: Number of rows & columns of A 
-  ! flag: Boolean, indicated if A is singular 
-  ! s: Vector of length m, equivalent to the permutation matrix P
-  integer, intent(in) :: m 
-  real (dp), intent(inout), dimension(m, m) :: A 
-
-  logical, intent(inout) :: flag 
-  integer, intent(inout), dimension(m) :: s 
-
-  integer :: i, j, K, k2, permtemp ! permutation temp variable for swaps 
-  real (dp) :: p 
-  real (dp), dimension(m) :: temp ! vector for swaps 
-
-  temp = 0.0
-  s = 0.0 
-
-  ! Initialize permutation vector 
-  do j=1,m 
-    s(j) = j
-  end do 
-
-  ! Perform LU loop
-  do j=1, m 
-
-    ! Find index k and pivot p
-    call find_pivot(A, j, K, p, m)
-
-    ! Swap rows K and j or A, swap entries K and j of s
-    if (K .ne. j) then 
-      temp = A(K, :)
-      A(K, :) = A(j, :)
-      A(j,: ) = temp 
-
-      permtemp = s(K)
-      s(K) = s(j)
-      s(j) = permtemp
-    end if 
-  
-    if (A(j,j) .eq. 0.0) then 
-      print *, 'Error: Pivot is zero'
-      flag = .true.
-      return 
-    end if 
-
-    do i=j+1, m 
-      A(i, j) = A(i, j) / A(j, j)
-
-      do k2=j+1,m 
-        A(i, k2) = A(i, k2) - A(i, j)*A(j, k2)
-      end do 
-    end do
-  end do
-  flag = .false.
-end subroutine lu_decomp
-
-subroutine LU_backsolve(A, m, b, s, x)
-  ! Backsubsitution for LU 
-
-  ! Parameters:
-  ! A: LU decomposition, stored in the format of 2.55 from the text 
-  ! m: Number of rows & columns of A 
-  ! b: RHS of (LU)x=b, m vector 
-  ! s: Permutation vector from LU decomposition 
-  ! x: Output vector, where the solutions are stored 
-
-  ! In this case A is LU where the diagonal is l_{ii}
-  integer, intent(in) :: m 
-  real (dp), intent(in), dimension(m, m) :: A 
-  real (dp), intent(in), dimension(m) :: b
-  real (dp), intent(inout), dimension(m) :: x 
-
-  integer, intent(inout), dimension(m) :: s 
-
-  real (dp), dimension(m) :: y 
-  integer :: i, j
-  
-  x = 0.0 
-  y = 0.0 
-
-  do i=1, m
-    y(i) = b(s(i))
-  end do 
-
-  ! forward substitution for y=L^{-1}Pb 
-  do j=1, m-1
-    do i=j+1, m 
-      y(i) = y(i) - y(j)*A(i, j)
-    end do
-  end do 
-
-  call single_backsolve(A, x, y, m)
-end subroutine LU_backsolve 
 
 subroutine single_backsolve(U, x, b, m)
   ! Performs backsubstitution for Ux = b
@@ -454,38 +351,6 @@ subroutine single_backsolve(U, x, b, m)
     x(i) = (b(i) - sum)/U(i, i)
   end do 
 end subroutine single_backsolve
-
-subroutine explicit_lu(LU, L, U, m)
-  integer, intent(in) :: m
-  real (dp), intent(in), dimension(m, m) :: LU 
-  real (dp), intent(out), dimension(m, m) :: L, U
-
-  integer :: i, j 
-
-  ! Set  L
-  L = 0.
-  do i=1,m 
-    do j=1,m 
-      if (i >= j) then 
-        L(i, j) = LU(i, j)
-      end if 
-    end do
-  end do 
-  ! Make the diagonal elements of L = 1
-  do i=1, m 
-    L(i, i) = 1.
-  end do 
-
-  ! Set U 
-  U = 0.
-  do i=1,m 
-    do j=1,m 
-      if (i <= j) then 
-        U(i, j) = LU(i, j)
-      end if 
-    end do
-  end do
-end subroutine explicit_lu
 
 subroutine prettyprint(A, m, n)
   ! Prints a 2D array in a human-readable way 

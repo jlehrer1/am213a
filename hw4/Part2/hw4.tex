@@ -10,10 +10,38 @@
 \newcommand{\C}{\mathbb{C}}
 \newcommand{\ra}{\longrightarrow}
 
-\title{}
+\title{Homework 4: Theory Questions}
 \date{}
-\author{}
+\author{Julian Lehrer}
 \begin{document}
 \maketitle
+\textbf{Question 1.} Lemma: $A^n = QU^n Q^*$ where $U$ is upper triangular and $Q$ is unitary. Proof (induction on $n$). For $n=1$, we have that $A = QUQ^*$ by the Schur decomposition. Then suppose $A^n = QU^n Q^*$, and show $A^{n+1}=QU^{n+1}Q^*$. We have that $A^{n+1} = AA^{n} = (Q U Q^*)(QU^n Q^*) = QU Q^* Q U^n Q^* = QUIU^n Q^* = QU^{n+1}Q^*$, as desired. Since $A^n$ is similar to $QU^n Q^*$, we have that the spectrum of $A^n$ is the same as the spectrum of $U^n$. \\
+
+Proof $(\implies)$. Consider $\|A \|_F$, the Frobenius norm given by $\sqrt{\sum_{i}\sum_{j}|a_{ij}|}$. If $\sqrt{\sum_{i}\sum_j|a^n_{ij}|} \ra 0$ as $n \ra \infty$, then we must have that $|a_{ij}| < 0$, since each entry of the matrix must go to zero. Then since $\|A^n\| \ra 0 \iff \|U^n\| \ra 0$ as $n \ra \infty$, and the diagonals of $U$ contain the eigenvalues of $A$, we have by necessity that $p(A) < 1$. \\
+
+Proof $(\impliedby)$. Suppose that $p(A) < 1$. We prove the following lemma: $\|A^n x\|/\|x\| = p(A)^n$ by induction on $n$. Suppose $\lambda = p(A)$ and we have that $Ax = \lambda x$. Then $Ax / x = \lambda$, so $\|Ax\| = \|\lambda x\| = \lambda \|x\|$, therefore $\frac{\|Ax\|}{\|x\|}$. \\ 
+
+\textbf{Question 2.} Lemma: The eigenvalues of $AB$ are the same as the eigenvalues of $BA$. Proof: Let $(AB)x = \lambda x$. Then $ABx = BABx = BA(Bx) = \lambda (Bx)$, so $\lambda$ is an eigenvalue of $BA$ with eigenvalue $y=Bx$. Now,
+
+\textbf{Question 3.} First, note that since $det A = det A^T$, we have that $det(A - \lambda I) = det((A-\lambda I)^T) = det(A^T - \lambda I)$, so the eigenvalues of $A$ and $A^T$ are the same. Therefore, the Gersgorin circles defined by the rows of $A^T$ (columns of $A$) contain all eigenvalues of $A$. Equivalently, the theorem holds with column sums.\\
+
+\textbf{Question 4.} First, consider the absolute row sums given by $r_{1,2,3,4} = 0.8, 0.1, 0.4, 0.1$. Then since we showed the Gershgorin discs can also be found by considering the absolute column sums, consider the column sums of columns 2 and 4, given by $c_{2,4} = 0.1, 0.1$. Therefore, the radius of each circle is $0.1$. Additionally, since $k+0.1<(k+1)-0.1$ the circles are disjoint, and we can conclude that there is exactly one eigenvalue in $|z-k| < 0.1$ for $k=1,2,3,4$. \\
+
+\textbf{Question 5.} Lemma: If $Ay = \lambda y $, then $A^n y = \lambda^n y$. Proof (by induction on $n$). $n=1$ is handled in the definition. Then suppose $A^n y = \lambda^n y$ and show that $A^{n+1}y= \lambda^{n+1}y$. Then $A^{n+1}=AA^n = A(\lambda^n y) = \lambda^n (Ay) = \lambda^n \lambda = \lambda^{n+1}$. Then we have that $y^T A^k y = y^T y\lambda^k$, so 
+\begin{equation*}
+    \lim_{k \ra \infty} \frac{y^T A^{k+1}y}{y^T A^k y} = \frac{y^T y \lambda^{k+1}}{y^T y \lambda^k} \lambda 
+\end{equation*}
+
+Is an eigenvalue of $A$. \\
+
+\textbf{Question 6.} Lemma: $p(A) \leq \|A\|$. Proof: We consider the proof with the 2-norm, since all norms are equivalent in a finite vector space. Let $p(A) = |\lambda|$, and let the corresponding eigenvector be $x$ with $\|x\| = 1$. Then $\|Ax\| = \|\lambda x\| = |\lambda|$. Now consider an arbitary unit vector $u$. By the Cauchy-Schwartz inequality, we have that $\|Au\| \leq \|A\| \|u\| = \|A\|$, therefore $\|A \| \geq \|A u\|$ for all vectors $u$. In particular, $\|A\| \geq \|Ax\| = |\lambda|$, so $p(A) \leq \|A\|$. \\
+
+Now, consider the fact that since $A$ has nonnegative entries, $\sum_{j}^m a_{ij}=1=\|A\|_1$, the 1-norm of $A$. Therefore, $p(A) < 1$, or equivalently, no eigenvalue has an absolute value greater than one. \\
+
+\textbf{Question 7.} 
+\begin{itemize}
+    \item[a.] Consider the SVD of $A$ to be $A=U\Sigma V^T$. Then since $A^T = V\Sigma U^T$, and $A^TA = V\Sigma^2 V^T = AA^T = U\Sigma^2U^T$, we have that $U=T$. Let $\sigma_i$ be the $i$th singular value of $A$. Since $\sigma_i = \sqrt{\lambda_i(A^TA)}$, $A = U\Sigma U^T$ and  $A^TA = U\Sigma^2 U^T$ by virtue of $A$ being normal, $\sigma_i = \sqrt{\sigma_i^2} = |\lambda_i|$. 
+    \item[b.] Since $\|A\|_2 = \sqrt{p(A^TA)} = \sigma_{\max}(A)$ by definition, and we just showed that $\sigma_i = |\lambda_i|$, we have that $\|A\|_2 = |\lambda_i|$. 
+\end{itemize}
 
 \end{document}
