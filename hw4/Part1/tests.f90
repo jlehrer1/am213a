@@ -49,35 +49,22 @@ Program question1
   print *, 'Printing result of QR alg. without shift'
 
   call prettyprint(A_2, m, m)
+  m = 4
 
   print *, 'Printing eigenvector associated with \lambda=-8.0286'
-
-  m = 4
   call inverse_iteration(A_3, v, m, -8.0286, max_iter)
-  print *, 'V is ', x
+  print *, 'V is ', v
 
-  eye = 0. 
-  do i=1, m 
-    eye(i, i) = 1. 
-  end do 
-  print *, 'A_3 before gaussian elim'
-  call prettyprint(A_3, m, m)
+  print *, 'Printing eigenvector associated with \lambda=7.9329'
+  call inverse_iteration(A_3, v, m, 7.9329, max_iter)
+  print *, 'V is ', v  
 
-  print *,'A_3 after gaussian elim is'
-  call gaussian_elimination(A_3, eye, flag, m, m)
-  call prettyprint(A_3, m, m)
-  call prettyprint(eye, m, m)
-  ! b = (/1,1,1,1/) 
+  print *, 'Printing eigenvector associated with \lambda=5.6689'
+  call inverse_iteration(A_3, v, m, 5.6689, max_iter)
+  print *, 'V is ', v  
 
-  ! A_3LU = A_3
-  ! call lu_decomp(A_3LU, m, flag, s)
-
-  ! call lu_backsolve(A_3LU, m, b, s, x)
+  print *, 'Printing eigenvector associated with \lambda=-1.5732'
+  call inverse_iteration(A_3, v, m, -1.5732, max_iter)
+  print *, 'V is ', v
   
-  ! print *, 'B is ', b 
-  ! print *,'Solution is', x 
-
-  ! print *, 'Ax = ', matmul(A_3, x)
-  ! print *, 'error is', norm2(matmul(A_3, x) - b)
-
 End Program question1

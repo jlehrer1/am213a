@@ -7,9 +7,6 @@ MODULES = LinAl.mod
 output.txt: LinAl.exe
 	./LinAl.exe > output.txt
 
-LinAl.exe: $(MODULES) $(OBJECTS)
-	gfortran $(OBJECTS) $(CHECKS) -o LinAl.exe
-
 build: 
 	gfortran $(CHECKS) LinAl.f90 tests.f90 -o tests
 
