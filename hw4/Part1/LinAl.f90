@@ -67,6 +67,11 @@ subroutine qr_factorization(A, R, Q, m, n)
 end subroutine qr_factorization
 
 subroutine hessenberg(A, m)
+  ! Converts a matrix into it's Hessenberg form via modified Householder reflections 
+  ! Parameters:
+  ! A: Input matrix, modified to Hessenberg form 
+  ! m: Number of rows/columns of A
+
   real (dp), intent(inout), dimension(:, :) :: A 
   integer, intent(in) :: m
 
@@ -106,6 +111,13 @@ subroutine hessenberg(A, m)
 end subroutine hessenberg
 
 subroutine QR_without_shift(A, m, max_iter)
+  ! Reveals the eigenvalues of A via the QR algorithm without shift. 
+
+  ! Parameters:
+  ! A: Input matrix. A is transformed to an upper triangular matrix with eigenvalues along the diagonal 
+  ! m: Number of rows/columns of A 
+  ! max_iter: Max number of iterations that the QR algorithm is allowed to run 
+
   real (dp), intent(inout), dimension(:, :) :: A 
   integer, intent(in) :: m, max_iter 
   
@@ -141,6 +153,12 @@ subroutine QR_without_shift(A, m, max_iter)
 end subroutine QR_without_shift
 
 subroutine QR_with_shift(A, m, max_iter)
+  ! Reveals the eigenvalues of A via the QR algorithm without shift 
+
+  ! Parameters:
+  ! A: Input matrix, transformed to an upper triangular matrix with the eigenvalues of A along the diagonal 
+  ! m: Number of rows/columns of A 
+  ! max_iter: Maximum number of iterations that the algorithm is allowed to run 
   real (dp), intent(inout), dimension(:, :) :: A 
   integer, intent(in) :: m, max_iter 
   
@@ -184,6 +202,14 @@ subroutine QR_with_shift(A, m, max_iter)
 end subroutine QR_with_shift
 
 subroutine inverse_iteration(A, x, m, mu, max_iter)
+  ! Calculates the eigenvector associated with a given eigenvalue 
+  
+  ! Parameters:
+  ! A: Input matrix to calculate eigenvector for 
+  ! x: Output vector to write estimation of eigenvector to 
+  ! m: Number of rows/columns of A 
+  ! mu: Estimation of eigenvalue of A 
+  ! max_iter: Maximum number of iterations the inverse iteration algorithm is allowed to run for 
   integer, intent(in) :: m, max_iter
   real (dp), intent(in), dimension(m, m) :: A 
   real (dp), intent(out), dimension(m) :: x

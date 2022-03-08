@@ -36,7 +36,7 @@ Therefore,
     \lambda = 2, 2+\sqrt{3}, 2-\sqrt{3} = 2, \approx 3.7321, \approx 0.26795
 \end{equation*}
 
-The QR algorithm without shift reaches an error tolerance of $\epsilon = 1e-6$ in $12$ iterations, and recapitulates the eigenvalues $\lambda = 3.7321, 2.0000, 0.26795$ along the diagonal of $A$, as desired. The QR algorithm with shift 
+The QR algorithm without shift reaches an error tolerance of $\epsilon = 1e-6$ in $12$ iterations, and recapitulates the eigenvalues $\lambda = 3.7321, 2.0000, 0.26795$ along the diagonal of $A$, as desired. When writing the QR algorithm with shift, I had to change my QR factorization just slightly, as there are times where the norm of $v_j \ra 0$, so normalizing $v_j$ is limited by machine precision. After fixing this by stopping the algorithm if $v_j \approx 0$, meaning that the householder reflection is quite close to the identity matrix, we have that the algorithm reveals the same eigenvalues with the same precision, but in only $8$ iterations. \\
 
-\textbf{Question 3.} First, we consider a slight modification of the Inverse Iteration algorithm. Instead of considering $y = Bx/\|Bx\|$ where $B=(A-\mu I)^{-1}$, we equivalently solving $(A-\mu I)y = x$ and then $x := x/\|x\|$. This algorithm reveals the eigenvector, with tolerance $\epsilon = 1e-6$. 
+\textbf{Question 3.} First, we consider a slight modification of the Inverse Iteration algorithm. Instead of considering $y = Bx/\|Bx\|$ where $B=(A-\mu I)^{-1}$, we equivalently solving $(A-\mu I)y = x$ and then $x := x/\|x\|$. This algorithm reveals the eigenvectors with stopping criterion as the norm of the difference of the current and previous eigenvector estimation, with $\|x_{curr}-x_{prev}\| <= \epsilon = 1e-6$. 
 \end{document}
