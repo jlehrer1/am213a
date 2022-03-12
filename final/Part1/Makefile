@@ -12,7 +12,7 @@ test:
 	gfortran $(CHECKS) -llapack LinAl.f90 minimal.f90 -o test
 
 parta:
-	gfortran $(CHECKS) -llapack LinAl.f90 parta.f90 -o parta
+	gfortran $(CHECKS) -llapack -O3 LinAl.f90 parta.f90 -o parta
 
 bone:
 	gfortran $(CHECKS) LinAl.f90 partb_1.f90 -o bone

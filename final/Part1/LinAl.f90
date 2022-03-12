@@ -171,5 +171,30 @@ subroutine prettyprint(A, m, n)
   print *, ''
 end subroutine prettyprint
 
+subroutine frobenius_norm(A, m, n, norm)
+  ! Calculates the Frobenius norm of a matrix A 
+
+  ! Parameters:
+  ! A: Matrix to calculate norm of 
+  ! m: Number of rows in A 
+  ! n: Number of columns in A 
+  ! norm: Output variable to store Frobenius norm of A to 
+
+  integer, intent(in) :: m, n 
+  real (dp), intent(in), dimension(m, n) :: A 
+  real (dp), intent(out) :: norm 
+
+  integer :: i, j 
+
+  norm = 0.
+  do i=1,m 
+    do j=1,n
+      norm = norm + abs(A(i, j))
+    end do 
+  end do 
+
+  norm = sqrt(norm)
+end subroutine frobenius_norm
+
 end module LinAl
 
