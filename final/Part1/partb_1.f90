@@ -8,7 +8,11 @@ program gauss_iterative_methods
     real (dp), dimension(5) :: vals 
     real (dp), allocatable, dimension(:) :: errors 
     integer :: i, max_iter, m 
+    real (dp) :: tolerance 
 
+    tolerance = 10.**(-6)
+    print *, 'Tolerance is ', tolerance 
+    
     max_iter = 1000 
     m = 10
     allocate(errors(max_iter))
@@ -19,20 +23,20 @@ program gauss_iterative_methods
         b(i) = i
     end do 
 
-    ! do i=1, 5
-    !     val = vals(i)
-    !     call generate_test_matrix(A, 10, val)
-    !     call gauss_jacobi(A, m, x, b, errors, max_iter)
+    do i=1, 5
+        val = vals(i)
+        call generate_test_matrix(A, 10, val)
+        call gauss_jacobi(A, m, x, b, errors, max_iter, tolerance)
 
-    !     print *, 'Solution reached with Gauss-Jacobi for D=', val, 'is'
-    !     print *, x 
-    ! end do 
+        print *, 'Solution reached with Gauss-Jacobi for D=', val, 'is'
+        print *, x 
+    end do 
 
     do i=1, 5
         val = vals(i)
         call generate_test_matrix(A, 10, val)
         print * ,'max_iter is', max_iter
-        call gauss_seidel(A, m, x, b, errors, max_iter)
+        call gauss_seidel(A, m, x, b, errors, max_iter, tolerance)
 
         print *, 'Solution reached with Gauss-Jacobi for D=', val, 'is'
         print *, x 

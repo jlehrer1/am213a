@@ -3,7 +3,7 @@ CHECKS = -fimplicit-none  -Wall  -Wextra -Wline-truncation  -Wcharacter-truncati
 MODULES = LinAl.mod
 CONTAINER = jmlehrer/fortran-test
 
-.PHONY: clean test a_one b_one b_two 
+.PHONY: clean test parta bone btwo 
 
 output.txt: LinAl.exe
 	./LinAl.exe > output.txt
@@ -15,10 +15,10 @@ parta:
 	gfortran $(CHECKS) -llapack LinAl.f90 parta.f90 -o parta
 
 bone:
-	gfortran $(CHECKS) LinAl.f90 partb_1.f90 -o partb_1
+	gfortran $(CHECKS) LinAl.f90 partb_1.f90 -o bone
 	 
 btwo:
-	gfortran $(CHECKS) LinAl.f90 partb_2.f90 -o partb_2
+	gfortran $(CHECKS) LinAl.f90 partb_2.f90 -o btwo
 
 %.o: %.f90
 	gfortran -c -fdefault-real-8 -fdefault-double-8 $(CHECKS) $<

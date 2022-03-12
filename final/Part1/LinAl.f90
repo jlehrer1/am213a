@@ -26,12 +26,13 @@ subroutine from_file(matrix, m, n)
 
 end subroutine from_file
 
-subroutine gauss_jacobi(A, m, x, b, errors, max_iter) 
+subroutine gauss_jacobi(A, m, x, b, errors, max_iter, tolerance) 
   integer, intent(in) :: m, max_iter 
   real (dp), intent(in), dimension(m, m) :: A 
   real (dp), intent(in), dimension(m) :: b 
   real (dp), intent(out), dimension(:) :: x 
   real (dp), intent(inout), dimension(max_iter) :: errors 
+  real (dp), intent(in) :: tolerance 
 
   real (dp), dimension(m) :: y
   real (dp) :: sum, r
@@ -52,7 +53,7 @@ subroutine gauss_jacobi(A, m, x, b, errors, max_iter)
 
     r = norm2(matmul(A, x) - b)
     errors(k) = r
-    if (r .le. 1e-6) then 
+    if (r .le. tolerance) then 
       print *, 'Jacobi algorithm converged on iteration', i 
       return
     end if
@@ -62,36 +63,16 @@ subroutine gauss_jacobi(A, m, x, b, errors, max_iter)
   print *, 'Convergence not reached with', max_iter, 'iterations'
 end subroutine gauss_jacobi
 
-subroutine gauss_seidel(A, m, x, b, errors, max_iter)
+subroutine gauss_seidel(A, m, x, b, errors, max_iter, tolerance)
   integer, intent(in) :: m, max_iter 
   real (dp), intent(in), dimension(m, m) :: A 
   real (dp), intent(in), dimension(m) :: b 
   real (dp), intent(out), dimension(:) :: x 
   real (dp), intent(inout), dimension(max_iter) :: errors 
+  real (dp), intent(in) :: tolerance 
 
   real (dp) :: sum1, r 
-  real (dp), dimension(m, m) :: L, U, D 
   integer :: i, j, k 
-
-  D = 0. 
-  L = 0. 
-  U = 0. 
-
-  do i=1, m 
-    do j=1, m 
-      if (i .le. j) then 
-        U(i, j) = A(i, j)
-      end if 
-
-      if (i .ge. j) then 
-        L(i, j) = A(i, j)
-      end if 
-
-      if (i .eq. j) then 
-        D(i, j) = A(i, j)
-      end if 
-    end do 
-  end do 
 
   x = 1. 
 
@@ -108,7 +89,7 @@ subroutine gauss_seidel(A, m, x, b, errors, max_iter)
 
     r = norm2(matmul(A, x) - b)
     errors(k) = r 
-    if (r < 1e-6) then 
+    if (r < tolerance) then 
       print *, 'Convergence reached on iteration', k 
       return 
     end if 
@@ -116,23 +97,25 @@ subroutine gauss_seidel(A, m, x, b, errors, max_iter)
   print *, 'Convergence not reached with', max_iter, 'iterations'
 end subroutine gauss_seidel
 
-subroutine conjugate_gradient(A, m, x, b, max_iter, eps)
-  real (dp), intent(in) :: eps 
+subroutine conjugate_gradient(A, m, x, b, errors, max_iter, tolerance)
   integer, intent(in) :: m, max_iter 
+  real (dp), intent(in) :: tolerance 
   real (dp), intent(in), dimension(m, m) :: A 
   real (dp), intent(in), dimension(m) :: b 
   real (dp), intent(out), dimension(:) :: x 
-
+  real (dp), intent(inout), dimension(max_iter) :: errors 
+  
   real (dp), dimension(m) :: r, p 
   real (dp) :: alpha, denom, beta  
   integer :: k 
 
+  x = 1.
   r = b - matmul(A, x)
 
-  if (norm2(r) < eps) then 
-    x = r 
-    return 
-  end if 
+  if (norm2(r) < tolerance) then
+    x = r
+    return
+  end if
 
   p = r 
   k = 0 
@@ -145,7 +128,8 @@ subroutine conjugate_gradient(A, m, x, b, max_iter, eps)
     ! Now continue and update r 
     r = r - alpha*matmul(A, p)
 
-    if (norm2(r) < eps) then 
+    errors(k) = norm2(r)
+    if (norm2(r) < tolerance) then 
       print *, 'Convergence reached on iteration', k 
       x = r
       return  

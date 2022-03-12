@@ -14,7 +14,6 @@ Program question1
   n = 5295
   ks = (/20, 40, 80, 160, 320, 640, 1280, 2560, 3355/)
 
-
   do i=1, 9 
     k = ks(i)
     write(filename, "(A5,I2)") "compressed_image", i
@@ -34,7 +33,7 @@ Program question1
   allocate(work(lwork))
   call dgesvd('A', 'A', m, n, A, m, sigma, U, m, V_T, n, work, lwork, info)
 
-  allocate(full_sigma(m, n), recon(m, n))
+  allocate(full_sigma(m, n), recon(m, n), temp(m))
   do i=1,9 
     temp = 0. 
     full_sigma = 0. 
@@ -42,7 +41,7 @@ Program question1
 
     ! Construct full sigma matrix for multiplications
     k = ks(i) 
-    temp = sigma(0:k)
+    temp(1:k) = sigma(1:k)
     
     do j=1,m
       full_sigma(j, j) = temp(j)
