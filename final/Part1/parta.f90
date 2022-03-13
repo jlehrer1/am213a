@@ -1,15 +1,16 @@
 Program question1
 
-  use LinAl, only: dp, prettyprint, from_file, frobenius_norm
-  
+  use LinAl, only: dp, prettyprint, from_file, frobenius_norm, printvec
+
   implicit none
-  real (dp), allocatable, dimension(:, :) :: A, U, V_T, recon, full_sigma
-  real (kind=dp) :: dummy(1, 1)
-  real (kind=dp), allocatable, dimension(:) :: sigma, work, temp
+  real (dp), allocatable, dimension(:, :) :: A, U, V_T, recon, full_sigma, error_mat, copy 
+  real (dp), allocatable, dimension(:) :: sigma, work, temp
+  real (dp) :: dummy(1, 1)
+
   integer, dimension(9) :: ks
   real (dp), dimension(9) :: errors 
-  real (dp) :: err 
-  integer :: m, n, lwork, info, i, k, j, l, p
+  real (dp) :: err
+  integer :: m, n, lwork, info, i, j, l, p, k
   character(len=4096) :: filename
 
   m = 3355
@@ -18,38 +19,47 @@ Program question1
 
   print *, 'Finding optimal work size'
   lwork = -1
-  allocate(A(m, n), sigma(m), U(m, m), V_T(n, n))
+  allocate(A(m, n), sigma(m), U(m, m), V_T(n, n), error_mat(m, n), copy(m, n))
+
   call from_file(A, m, n)
+  copy = A 
+
   call dgesvd('A', 'A', m, n, A, m, sigma, U, m, V_T, n, dummy, lwork, info)
 
   print *, 'Calculating SVD for image'
   lwork = nint(dummy(1, 1))
   allocate(work(lwork))
   call dgesvd('A', 'A', m, n, A, m, sigma, U, m, V_T, n, work, lwork, info)
+  print *, 'Info is', info 
+
+  print *, 'Sigma vector is'
+  call printvec(sigma, m)
 
   allocate(full_sigma(m, n), recon(m, n), temp(m))
-  do i=1,9 
-    temp = 0. 
+  do i=1, 9 
     full_sigma = 0. 
     recon = 0.
 
     ! Construct full sigma matrix for multiplications
-    k = ks(i) 
-    temp(1:k) = sigma(1:k)
-
-    do j=1,m
-      full_sigma(j, j) = temp(j)
+    do j=1, ks(i)
+      full_sigma(j, j) = sigma(j)
     end do
-
-    print *, 'Reconstructing image with', k, 'singular values'
+    
+    print *, 'Reconstructing image with', ks(i), 'singular values'
     recon = matmul(U, matmul(full_sigma, V_T))
 
     print *, 'Calculating error'
-    call frobenius_norm(A-recon, m, n, err)
-    print *, 'Error is', err
+    error_mat = copy - recon
+    call frobenius_norm(error_mat, m, n, err)
+
     errors(i) = err/real(m*n)
 
+    if (errors(i) .le. 10.**(-3)) then 
+      print *, 'Error less than 10^(-3) at with', ks(i), 'singular values'
+    end if 
+
     print *, 'Writing recontructed image to file'
+
     write(filename, "(A5,I2)") "compressed_image", i
     open(1, file=trim(filename))
     do l=1,m 

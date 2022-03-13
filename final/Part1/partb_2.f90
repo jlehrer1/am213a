@@ -1,6 +1,6 @@
 program conjugate_gradient_solver
 
-    use LinAl, only: dp, prettyprint, from_file, conjugate_gradient, generate_test_matrix
+    use LinAl, only: dp, prettyprint, from_file, conjugate_gradient, generate_test_matrix, printvec
 
     real (dp), dimension(10, 10) :: A 
     real (dp), dimension(10) :: b, x 
@@ -8,10 +8,10 @@ program conjugate_gradient_solver
     real (dp), dimension(5) :: vals 
     real (dp), allocatable, dimension(:) :: errors 
     integer :: i, max_iter, m 
-    real (dp) :: eps 
+    real (dp) :: tolerance
 
-    eps = 1e-6
-    max_iter = 10 
+    tolerance = 10.**(-5)
+    max_iter = 10
     m = 10
     allocate(errors(max_iter))
 
@@ -19,19 +19,15 @@ program conjugate_gradient_solver
 
     do i=1, 10
         b(i) = real(i)
-    end do 
+    end do
 
     do i=1, 5
         val = vals(i)
         call generate_test_matrix(A, m, val)
-        print * ,'A is '
-        call prettyprint(A, m, m)
-        print * ,'max_iter is', max_iter
-        call conjugate_gradient(A, m, x, b, errors, max_iter, eps)
+        call conjugate_gradient(A, m, x, b, max_iter, tolerance)
 
         print *, 'Solution reached with Conjugate Gradient for D=', val, 'is'
-        print *, x 
-        print *, 'Errors are', errors 
+        call printvec(x, m)
     end do 
     
 end program conjugate_gradient_solver

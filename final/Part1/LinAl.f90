@@ -1,9 +1,7 @@
 module LinAl
   implicit none
   integer, save :: msize, nsize
-  ! integer, parameter :: dp = SELECTED_REAL_KIND(15) ! to use double precision throughout 
   integer, parameter :: dp = kind(0.d0)
-  real (dp), dimension(:, :), allocatable, save :: mat
 contains
 
 subroutine from_file(matrix, m, n)
@@ -26,17 +24,18 @@ subroutine from_file(matrix, m, n)
 
 end subroutine from_file
 
-subroutine gauss_jacobi(A, m, x, b, errors, max_iter, tolerance) 
+subroutine gauss_jacobi(A, m, x, b, max_iter, tolerance, filename) 
   integer, intent(in) :: m, max_iter 
-  real (dp), intent(in), dimension(m, m) :: A 
+  character(len=*), intent(in) :: filename
+  real (dp), intent(in), dimension(m, m) :: A
   real (dp), intent(in), dimension(m) :: b 
   real (dp), intent(out), dimension(:) :: x 
-  real (dp), intent(inout), dimension(max_iter) :: errors 
   real (dp), intent(in) :: tolerance 
 
   real (dp), dimension(m) :: y
   real (dp) :: sum, r
   integer :: i, j, k 
+  real (dp), dimension(max_iter) :: errors 
 
   errors = 0. 
   x = 1. 
@@ -55,24 +54,31 @@ subroutine gauss_jacobi(A, m, x, b, errors, max_iter, tolerance)
     errors(k) = r
     if (r .le. tolerance) then 
       print *, 'Jacobi algorithm converged on iteration', i 
-      return
+      exit
     end if
     x = y
+  end do
 
+  print *, 'Writing Gauss Jacobi errors to file'
+  open(1, file=trim(filename))
+  do i=1, max_iter
+    write(1, *) (errors(i))
   end do 
+
   print *, 'Convergence not reached with', max_iter, 'iterations'
 end subroutine gauss_jacobi
 
-subroutine gauss_seidel(A, m, x, b, errors, max_iter, tolerance)
+subroutine gauss_seidel(A, m, x, b, max_iter, tolerance, filename)
   integer, intent(in) :: m, max_iter 
+  character(len=*), intent(in) :: filename
   real (dp), intent(in), dimension(m, m) :: A 
   real (dp), intent(in), dimension(m) :: b 
   real (dp), intent(out), dimension(:) :: x 
-  real (dp), intent(inout), dimension(max_iter) :: errors 
   real (dp), intent(in) :: tolerance 
 
   real (dp) :: sum1, r 
   integer :: i, j, k 
+  real (dp), dimension(max_iter) :: errors 
 
   x = 1. 
 
@@ -88,25 +94,32 @@ subroutine gauss_seidel(A, m, x, b, errors, max_iter, tolerance)
     end do 
 
     r = norm2(matmul(A, x) - b)
-    errors(k) = r 
+    errors(k) = r
     if (r < tolerance) then 
       print *, 'Convergence reached on iteration', k 
-      return 
+      exit 
     end if 
   end do 
+
+  print *, 'Writing Gauss Seidel errors to file'
+  open(1, file=trim(filename))
+  do i=1, k
+    write(1, *) (errors(i))
+  end do 
   print *, 'Convergence not reached with', max_iter, 'iterations'
+
 end subroutine gauss_seidel
 
-subroutine conjugate_gradient(A, m, x, b, errors, max_iter, tolerance)
+subroutine conjugate_gradient(A, m, x, b, max_iter, tolerance)
   integer, intent(in) :: m, max_iter 
   real (dp), intent(in) :: tolerance 
   real (dp), intent(in), dimension(m, m) :: A 
   real (dp), intent(in), dimension(m) :: b 
   real (dp), intent(out), dimension(:) :: x 
-  real (dp), intent(inout), dimension(max_iter) :: errors 
   
   real (dp), dimension(m) :: r, p 
-  real (dp) :: alpha, denom, beta  
+  real (dp) :: alpha, denom, beta
+  real (dp), dimension(max_iter) :: errors 
   integer :: k 
 
   x = 1.
@@ -117,23 +130,23 @@ subroutine conjugate_gradient(A, m, x, b, errors, max_iter, tolerance)
     return
   end if
 
-  p = r 
-  k = 0 
-
+  p = r
+  k = 0
   do k=1, max_iter
     alpha = dot_product(r, r)/dot_product(p, matmul(A, p))
-    x = x + alpha*p 
+    ! print *, 'alpha is', alpha
+    x = x + alpha*p
+
     ! Calculate denominator of beta before r is updated 
     denom = dot_product(r, r)
     ! Now continue and update r 
     r = r - alpha*matmul(A, p)
-
+    ! print *, 'r is ', r 
     errors(k) = norm2(r)
     if (norm2(r) < tolerance) then 
       print *, 'Convergence reached on iteration', k 
-      x = r
-      return  
-    end if 
+      return
+    end if
 
     beta = dot_product(r, r) / denom 
     p = r + beta*p 
@@ -170,6 +183,16 @@ subroutine prettyprint(A, m, n)
   enddo
   print *, ''
 end subroutine prettyprint
+subroutine printvec(x, m)
+  integer, intent(in) :: m 
+  real (dp), intent(in), dimension(m) :: x 
+
+  integer :: i 
+
+  do i=1,m 
+    write(*,"(100g15.5)") x(i)
+  end do 
+end subroutine printvec
 
 subroutine frobenius_norm(A, m, n, norm)
   ! Calculates the Frobenius norm of a matrix A 
