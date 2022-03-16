@@ -1,0 +1,43 @@
+~/Documents/School/am213a/final/Part1(main*) » make test
+gfortran -fimplicit-none  -Wall  -Wextra -Wline-truncation  -Wcharacter-truncation  -Wsurprising  -Waliasing  -Wimplicit-interface  -Wunused-parameter  -fwhole-file  -fcheck=all -pedantic -fbacktrace -llapack LinAl.f90 minimal.f90 -o test
+LinAl.f90:123:39:
+
+  123 |   real (dp), dimension(m, m) :: L, U, D
+      |                                       1
+Warning: Unused variable 'd' declared at (1) [-Wunused-variable]
+LinAl.f90:124:14:
+
+  124 |   integer :: i, j, k
+      |              1
+Warning: Unused variable 'i' declared at (1) [-Wunused-variable]
+LinAl.f90:124:17:
+
+  124 |   integer :: i, j, k
+      |                 1
+Warning: Unused variable 'j' declared at (1) [-Wunused-variable]
+LinAl.f90:123:33:
+
+  123 |   real (dp), dimension(m, m) :: L, U, D
+      |                                 1
+Warning: Unused variable 'l' declared at (1) [-Wunused-variable]
+LinAl.f90:123:36:
+
+  123 |   real (dp), dimension(m, m) :: L, U, D
+      |                                    1
+Warning: Unused variable 'u' declared at (1) [-Wunused-variable]
+LinAl.f90:68:30:
+
+   68 |   real (dp), dimension(m) :: y
+      |                              1
+Warning: Unused variable 'y' declared at (1) [-Wunused-variable]
+minimal.f90:24:91:
+
+   24 |   call dgesvd('A', 'A', m, n, test, m, test_sigma, test_U, m, test_V, n, work, lwork, info)
+      |                                                                                           1
+Warning: Procedure 'dgesvd' called with an implicit interface at (1) [-Wimplicit-interface]
+minimal.f90:9:31:
+
+    9 |   real (kind=dp) :: dummy(1, 1)
+      |                               1
+Warning: Unused variable 'dummy' declared at (1) [-Wunused-variable]
+
