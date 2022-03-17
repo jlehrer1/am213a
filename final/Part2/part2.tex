@@ -1,0 +1,77 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\setlength{\parindent}{0pt} 
+\usepackage{amssymb}
+\usepackage{amsmath}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\ra}{\longrightarrow}
+
+\title{Final: Theory Questions (extra credit)}
+\date{}
+\author{Julian Lehrer}
+\begin{document}
+\maketitle
+
+\textbf{Question 1.}
+\begin{itemize}
+    \item[a.] We define the iteration to be $x^{(k+1)} = Tx^{(k)} + c$. In the Jacobi iteration case, we have that $T=D^{-1}(L+U)$ and $c=D^{-1}b$
+    \item[b.] In the case of Gauss-Seidel, we have that $T=(D-L)^{-1}U$ and $c=(D-L)^{-1}b$. 
+\end{itemize}
+
+\textbf{Question 2}. Let $x_0$ be an arbitary vector. Since $A$ is not defective, consider that $A$ has an eigenbasis and therefore we can write that $x_0 = \sum_{i=1}^m a_iv_i$ where $\{v_i\}$, $i=1,...m$ are the set of eigenvectors of $A$. Then consider 
+\begin{align*}
+    Ax_0 &= A\left(\sum_{i=1}^m a_iv_i\right) = \sum_{i=1}^m Aa_i v_i = \sum_{i=1}^m \lambda_i a_i v_i\\
+    &= \lambda_1a_1v_1+...+\lambda_m a_m v_m 
+\end{align*}
+
+Now, we can rewrite this as 
+\begin{equation*}
+    Ax_0 = a_1\lambda_1\left(v_1+\frac{a_2}{a_1}\left(\frac{\lambda_2}{\lambda_1}\right)v_2+...+\frac{a_m}{a_1}\left(\frac{\lambda_m}{\lambda_1}\right)v_m\right)
+\end{equation*}
+
+Therefore 
+\begin{equation*}
+    A^{k}x_0 = a_1\lambda_1^k\left(v_1+\frac{a_2}{a_1}\left(\frac{\lambda_2}{\lambda_1}\right)^kv_2+...+\frac{a_m}{a_1}\left(\frac{\lambda_m}{\lambda_1}\right)^kv_m\right)
+\end{equation*}
+Since $\left(\lambda_1/\lambda_i\right)^k \ra 0$ as $k \ra \infty$. Therefore, Since we are normalizing by $\|Ax_0\| \ra \lambda_1$ as $k \ra \infty$, we have that the power iteration converges to $v_1$, the eigenvector associated with the largest eigenvalue of $A$. Now, consider the case where 
+
+Consider the case where $|\lambda_1| =...=|\lambda_r|$ for $1 < r < m$, specifically where $\lambda_1 = -\lambda_j$ for one or more $j$ for $1 < j < r$. Then, we'll have that the power iteration is 
+\begin{equation*}
+    A^{k}x_0 = a_1\lambda_1\left(v_1+..+\frac{a_j}{a_1}\left(-1\right)^k v_j +... +\frac{a_m}{a_1}\left(\frac{\lambda_m}{\lambda_1}\right)^k v_m\right)
+\end{equation*}
+Then we'll have that the iteration oscillates for $k=2n$ and $k=2n+1$ where $(-1)^k \in \{-1, 1\}$. 
+
+\textbf{Question 3.}
+\begin{itemize}
+    \item[a.] 
+    \item[] 
+\end{itemize}
+
+\textbf{Question 4.}
+\begin{itemize}
+    \item[a.] First, we prove that $H$ is symmetric. That is, we have that 
+    \begin{align*}
+        H^T &= (I -2\frac{vv^T}{v^Tv})^T = I^T -2\frac{(vv^T)^T}{v^Tv} = I -2\frac{v^T(T)v^T}{v^Tv} = I-2\frac{vv^T}{v^Tv} = H
+    \end{align*}
+    Therefore, $H$ is symmetric. Now,
+    \begin{align*}
+        H^TH &= \left(I -2\frac{vv^T}{v^Tv}\right) \\
+        &= I-4\frac{vv^T}{v^Tv}+4\frac{vv^Tvv^T}{(v^Tv)^2}\\
+        &= I-4\frac{vv^T}{v}+4\frac{v(v^Tv)v^T}{(v^Tv)^2} = I-4\frac{vv^T}{v^Tv}+4\frac{vv^T}{v^Tv} = I
+    \end{align*}
+    Therefore, the Householder transformation is both orthogonal and symmetric. 
+    \item[b.] We have that 
+    \begin{align*}
+        Ha &=\left(I-2\frac{(a+\alpha e_1)(a^T+\alpha e_1^T)}{(a^T+\alpha e_1^T)(a+\alpha e_1)}\right)a\\
+        &= a-2 \left(\frac{aa^T+\alpha ae_1^T+\alpha e_1 a^T+\alpha^2 e_1e_1^T}{a^T a+\alpha a^T e_1 + \alpha e_1^T a + e_1^T e_1}\right)a \\
+        &=a-2\left(\frac{a(a^Ta)+\alpha a(e_1^T a) + \alpha e_1 (a^T a)+\alpha^2(e_1^T a)}{a^T a+\alpha a^T e_1 + \alpha e_1^T a + e_1^T e_1}\right)\\
+        % &=a-2\left(\frac{(a^Ta)(a+\alpha e_1) + (\alpha e_1^T a)(a+\alpha e_1)}{a^Ta+\alpha a^T e_1 + \alpha e_1^T a + e_1^Te_1}\right)\\
+        &=a-2\left(\frac{(a+\alpha e_1)(a^T a +2\alpha a^Te_1 + e_1^T e_1)}{(a^T a +2\alpha a^Te_1 + e_1^T e_1)}\right)\\
+        % &=a-2\left(a+\alpha e_1\right) = a-
+    \end{align*}  
+\end{itemize}
+\end{document}

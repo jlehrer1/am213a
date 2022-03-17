@@ -14,7 +14,7 @@ program gauss_iterative_methods
     tolerance = 10.**(-5)
     print *, 'Tolerance is ', tolerance 
     
-    max_iter = 1000 
+    max_iter = 500 
     m = 10
     allocate(errors(max_iter))
 
@@ -26,21 +26,25 @@ program gauss_iterative_methods
 
     do i=1, 5
         val = vals(i)
-        write(filename, "(A5,I2)") "GS_err", i
+        write(filename, "(A5,I2)") "GJ_err", i
     
         call generate_test_matrix(A, 10, val)
-        call gauss_jacobi(A, m, x, b, max_iter, tolerance, trim(filename))
+        call gauss_jacobi(A, m, x, b, max_iter, tolerance, 'errors/' // trim(filename))
 
         print *, 'Solution reached with Gauss-Jacobi for D=', val, 'is'
         print *, x 
     end do 
 
+    ! Print a couple newlines to make this more readable
+    print *, ''
+    print *, ''
+
     do i=1, 5
         val = vals(i)
-        write(filename, "(A5,I2)") "GJ_err", i
+        write(filename, "(A5,I2)") "GS_err", i
 
         call generate_test_matrix(A, 10, val)
-        call gauss_seidel(A, m, x, b, max_iter, tolerance, filename)
+        call gauss_seidel(A, m, x, b, max_iter, tolerance, 'errors/' // trim(filename))
 
         print *, 'Solution reached with Gauss-Jacobi for D=', val, 'is'
         print *, x 

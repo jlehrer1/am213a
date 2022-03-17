@@ -6,7 +6,7 @@ contains
 
 subroutine from_file(matrix, m, n)
   ! Reads a matrix from a file 
-  ! First line of file must contain two integers m & n, 
+  ! First line of file must contain two integers m & n
   ! definining the number of rows and columns in the matrix, respectively.
 
   ! Parameters:
@@ -59,13 +59,15 @@ subroutine gauss_jacobi(A, m, x, b, max_iter, tolerance, filename)
     x = y
   end do
 
-  print *, 'Writing Gauss Jacobi errors to file'
   open(1, file=trim(filename))
   do i=1, max_iter
     write(1, *) (errors(i))
   end do 
 
-  print *, 'Convergence not reached with', max_iter, 'iterations'
+  if (k .eq. max_iter + 1) then 
+    print *, 'Convergence not reached with', max_iter, 'iterations'
+  end if 
+
 end subroutine gauss_jacobi
 
 subroutine gauss_seidel(A, m, x, b, max_iter, tolerance, filename)
@@ -101,12 +103,14 @@ subroutine gauss_seidel(A, m, x, b, max_iter, tolerance, filename)
     end if 
   end do 
 
-  print *, 'Writing Gauss Seidel errors to file'
   open(1, file=trim(filename))
   do i=1, k
     write(1, *) (errors(i))
   end do 
-  print *, 'Convergence not reached with', max_iter, 'iterations'
+
+  if (k .eq. max_iter + 1) then 
+    print *, 'Convergence not reached with', max_iter, 'iterations'
+  end if 
 
 end subroutine gauss_seidel
 
@@ -118,15 +122,21 @@ subroutine conjugate_gradient(A, m, x, b, max_iter, tolerance)
   real (dp), intent(out), dimension(:) :: x 
   
   real (dp), dimension(m) :: r, p 
-  real (dp) :: alpha, denom, beta
+  real (dp) :: alpha, denom, beta, err 
   real (dp), dimension(max_iter) :: errors 
   integer :: k 
+
+  call frobenius_norm(A - transpose(A), m, m, err)
+  if (err .ge. tolerance) then 
+    print *, 'Error: A is not symmetric.'
+    return 
+  end if 
 
   x = 1.
   r = b - matmul(A, x)
 
   if (norm2(r) < tolerance) then
-    x = r
+    print *, 'Convergence reached on iteration 0'
     return
   end if
 
@@ -151,7 +161,61 @@ subroutine conjugate_gradient(A, m, x, b, max_iter, tolerance)
     beta = dot_product(r, r) / denom 
     p = r + beta*p 
   end do 
+  print *, 'Warning: convergence not reached with', k, 'iterations'
+
 end subroutine conjugate_gradient
+
+subroutine preconditioned_conjugate_gradient(A, m, x, b, max_iter, tolerance)
+  integer, intent(in) :: m, max_iter 
+  real (dp), intent(in) :: tolerance 
+  real (dp), intent(in), dimension(m, m) :: A
+  real (dp), intent(in), dimension(m) :: b 
+  real (dp), intent(out), dimension(:) :: x 
+  
+  real (dp), dimension(m) :: r, p 
+  real (dp) :: alpha, denom, beta, err 
+  real (dp), dimension(max_iter) :: errors 
+  real (dp), dimension(m, m) :: precond, precond_inv
+  integer :: k 
+
+  call frobenius_norm(A - transpose(A), m, m, err)
+  if (err .ge. tolerance) then 
+    print *, 'Error: A is not symmetric.'
+    return 
+  end if 
+
+  x = 1.
+  r = b - matmul(A, x)
+  
+  if (norm2(r) < tolerance) then
+    print *, 'Convergence reached on iteration 0'
+    return
+  end if
+
+  p = r
+  k = 0
+  do k=1, max_iter
+    alpha = dot_product(r, r)/dot_product(p, matmul(A, p))
+    ! print *, 'alpha is', alpha
+    x = x + alpha*p
+
+    ! Calculate denominator of beta before r is updated 
+    denom = dot_product(r, r)
+    ! Now continue and update r 
+    r = r - alpha*matmul(A, p)
+    ! print *, 'r is ', r 
+    errors(k) = norm2(r)
+    if (norm2(r) < tolerance) then 
+      print *, 'Convergence reached on iteration', k 
+      return
+    end if
+
+    beta = dot_product(r, r) / denom 
+    p = r + beta*p 
+  end do 
+  print *, 'Warning: convergence not reached with', k, 'iterations'
+
+end subroutine preconditioned_conjugate_gradient
 
 subroutine generate_test_matrix(A, m, val)
   real (dp), intent(in) :: val 
