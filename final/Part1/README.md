@@ -9,4 +9,4 @@ Part a: `make parta && ./parta`
 Part b.1: `make bone && ./bone`  
 Part b.2: `make btwo && ./btwo` 
 
-To generate the visualizations for all three parts, run the `make`s and then run `python visualize.py`, or `python visualize.py --force` to regenerate the plots even if they exist.  
+To generate the visualizations for all three parts, run the `make`s and then run `python visualize.py`, or `python visualize.py --force` to regenerate the plots even if they exist. To generate plots for only part a or part b, run with the flags `--parta` or `--partb`, respectively. 
