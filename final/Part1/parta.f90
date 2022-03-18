@@ -26,14 +26,12 @@ Program question1
 
   call dgesvd('A', 'A', m, n, A, m, sigma, U, m, V_T, n, dummy, lwork, info)
 
-  print *, 'Calculating SVD for image'
+  print *, 'Calculating SVD for full-resolution image'
+
   lwork = nint(dummy(1, 1))
   allocate(work(lwork))
   call dgesvd('A', 'A', m, n, A, m, sigma, U, m, V_T, n, work, lwork, info)
   print *, 'Info is', info 
-
-  print *, 'Sigma vector is'
-  call printvec(sigma, m)
 
   allocate(full_sigma(m, n), recon(m, n), temp(m))
   do i=1, 9 
@@ -52,16 +50,18 @@ Program question1
     error_mat = copy - recon
     call frobenius_norm(error_mat, m, n, err)
 
-    errors(i) = err/real(m*n)
+    err = err/real(m*n)
+    print *, 'Err for k=', k, 'is', err
+    errors(i) = err
 
-    if (errors(i) .le. 10.**(-3)) then 
+    if (errors(i) .le. 1./(10**3)) then 
       print *, 'Error less than 10^(-3) at with', ks(i), 'singular values'
     end if 
 
     print *, 'Writing recontructed image to file'
-
+    
     write(filename, "(A5,I2)") "compressed_image", i
-    open(1, file=trim(filename))
+    open(1, file='images/'//trim(filename))
     do l=1,m 
       write(1, *) (recon(l, p), p=1,n)
     end do 
